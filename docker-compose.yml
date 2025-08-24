@@ -1,16 +1,16 @@
 version: '3.8'
 
 services:
-  nextjs-app:
+  react-app:
     build:
-      context: ./frontend
+      context: ./frontend-react
       dockerfile: Dockerfile
     ports:
       - "5000:5000"
     env_file:
       - ./.env.fe
     volumes:
-      - ./frontend:/app
+      - ./frontend-react:/app
       - /app/node_modules
     restart: unless-stopped
 
@@ -27,7 +27,8 @@ services:
     env_file:
       - ./.env.be
     depends_on:
-      - mongo
+      mongo:
+        condition: service_healthy
 
   mongo:
     image: mongo:6
@@ -36,6 +37,10 @@ services:
       - "27017:27017"
     volumes:
       - mongo_data:/data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 5s
+      retries: 10
 
   mongo-express:
     image: mongo-express
