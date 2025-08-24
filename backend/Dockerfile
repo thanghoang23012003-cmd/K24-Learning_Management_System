@@ -1,5 +1,5 @@
 FROM node:18
-
+# FROM node:20-alpine
 # Tạo thư mục app
 WORKDIR /usr/src/app
 
@@ -11,4 +11,5 @@ RUN npm install
 EXPOSE 3000
 
 # Lệnh chạy NestJS với hot reload
+# CMD ["sh", "-c", "while :; do sleep 2073600; done"]
 CMD ["npm", "run", "start:dev"]
