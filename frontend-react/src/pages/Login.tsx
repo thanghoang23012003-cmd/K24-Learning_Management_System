@@ -1,8 +1,10 @@
 import { useState } from 'react';
+import { useTranslation } from "react-i18next";
 
 export default function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const { t } = useTranslation();
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -14,33 +16,35 @@ export default function Login() {
       <div className="bg-white w-full h-full grid grid-cols-1 md:grid-cols-2 overflow-hidden">
         <div className="p-6 md:p-10 flex flex-col justify-center">
           <h2 className="text-2xl font-bold mb-6 text-center text-gray-800">
-            Sign in to your account
+            {t('please_login', { ns: 'login' })}
           </h2>
 
           <form onSubmit={handleSubmit} className="space-y-5">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 Email
+
               </label>
               <input
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="Username or Email ID"
+                placeholder={t('username_or_Email_id', { ns: 'login' })}
                 className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
                 required
+                
               />
             </div>
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Password
+                {t('password', { ns: 'login' })}
               </label>
               <input
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                placeholder="Enter Password"
+                placeholder={t('enter_password', { ns: 'login' })}
                 className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
                 required
               />
@@ -48,7 +52,7 @@ export default function Login() {
 
             <div className="text-right">
               <a href="#forgot" className="text-sm text-blue-600 hover:underline">
-                Forgot password?
+                {t('forgot_password', { ns: 'login' })}
               </a>
             </div>
 
@@ -56,16 +60,18 @@ export default function Login() {
               type="submit"
               className="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-200 font-medium"
             >
-              Sign in →
+              {t('sign_in', { ns: 'login' })}
+              
+              
             </button>
           </form>
 
           <div className="mt-8">
-            <p className="text-center text-gray-500 text-sm mb-4">Or sign in with</p>
+            <p className="text-center text-gray-500 text-sm mb-4">{t('or_sign_in_with', { ns: 'login' })}</p>
             <div className="flex justify-center gap-3">
               <button className="flex items-center border border-gray-300 px-4 py-2 rounded-lg hover:bg-gray-50 transition">
                 <img
-                  src="https://www.svgrepo.com/show/475647/facebook-color.svg"
+                  src="https://www.svgrepo.com/show/475647/facebook-color.svg"  
                   alt="Facebook"
                   className="w-5 h-5 mr-2"
                 />
@@ -91,9 +97,9 @@ export default function Login() {
           </div>
 
           <p className="text-center text-sm text-gray-600 mt-6">
-            Don't have an account?{' '}
+            {t('dont_have_an_account?', { ns: 'login' })}{' '}
             <a href="#signup" className="text-blue-600 hover:underline font-medium">
-              Sign up
+              {t('sign_up', { ns: 'login' })}{' '}
             </a>
           </p>
         </div>
