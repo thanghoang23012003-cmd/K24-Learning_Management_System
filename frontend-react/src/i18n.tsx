@@ -6,7 +6,7 @@ i18n
   .use(Backend)
   .use(initReactI18next) // passes i18n down to react-i18next
   .init({
-    lng: "vi", // default language
+    lng: "en", // default language
     interpolation: {
       escapeValue: false // react already safes from xss
     },
