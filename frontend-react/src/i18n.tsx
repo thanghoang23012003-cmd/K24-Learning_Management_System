@@ -13,7 +13,7 @@ i18n
     backend: {
       loadPath: "/locales/{{lng}}/{{ns}}.json"
     },
-    ns: ["translation", "dashboard", "login", "adminDashboard", "layout", "course"],
+    ns: ["translation", "dashboard", "login", "adminDashboard", "layout", "course", "subject"],
   });
 
 export default i18n;

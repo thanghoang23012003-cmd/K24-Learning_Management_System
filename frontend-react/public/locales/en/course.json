@@ -1,4 +1,5 @@
 {
     "title": "Welcome List Course",
+    "create_course": "Create Course",
     "detail": "This is the detail section for the course list with id: {{id}}"
 }
