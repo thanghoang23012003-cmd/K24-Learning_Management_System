@@ -6,7 +6,7 @@ export default function Login() {
   const [password, setPassword] = useState('');
   const { t } = useTranslation();
 
-  const handleSubmit = (e) => {
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     console.log('Login:', { email, password });
   };

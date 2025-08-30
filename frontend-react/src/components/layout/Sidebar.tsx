@@ -12,6 +12,7 @@ interface SidebarProps {
 export default function Sidebar({ isExpanded = true, onToggle }: SidebarProps) {
   const [activeItem, setActiveItem] = useState('courses');
   const { t } = useTranslation();
+  console.log(isExpanded, activeItem);
 
   const menuItems = [
     {
@@ -139,18 +140,6 @@ function DashboardIcon() {
 function CoursesIcon() {
   return (
     <img src="/image/icons/course.svg" alt="Courses Icon" />
-  );
-}
-
-function CommunicationIcon() {
-  return (
-    <img src="/image/icons/communication.svg" alt="Communication Icon" />
-  );
-}
-
-function RevenueIcon() {
-  return (
-    <img src="/image/icons/revenue.svg" alt="Revenue Icon" />
   );
 }
 
