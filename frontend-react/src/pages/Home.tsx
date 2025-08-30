@@ -72,7 +72,7 @@ export default function Home() {
   const COURSES = Array.from({ length: 30 }).map((_, i) => ({
     id: `c-${i + 1}`,
     title: "Beginner’s Guide to Design",
-    image: "public/image/ngoimaytinh.jpg",
+    image: "image/ngoimaytinh.jpg",
     author: "John Doe",
     rating: 4.6 - (i % 3) * 0.2,
     ratingCount: 120 + i * 7,
@@ -83,7 +83,7 @@ export default function Home() {
     id: `m-${i + 1}`,
     name: "John Doe",
     role: "UX Mentor",
-    avatar: "public/image/giaovien.png",
+    avatar: "image/giaovien.png",
     rating: 4.9,
     reviews: 300 + i * 10,
   }));
@@ -91,7 +91,7 @@ export default function Home() {
   const FEATURED = Array.from({ length: 6 }).map((_, i) => ({
     id: `f-${i + 1}`,
     title: "Beginner’s Guide to Design",
-    image: "public/image/ngoimaytinh.jpg",
+    image: "image/ngoimaytinh.jpg",
     author: "John Doe",
     rating: 4.7,
     ratingCount: 310 + i * 5,
