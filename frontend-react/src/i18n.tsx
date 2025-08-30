@@ -11,7 +11,7 @@ i18n
       escapeValue: false // react already safes from xss
     },
     backend: {
-      loadPath: "/locales/{{lng}}/{{ns}}.json"
+      loadPath: `${import.meta.env.VITE_BASE_URL}locales/{{lng}}/{{ns}}.json`
     },
     ns: ["translation", "dashboard", "login", "adminDashboard", "layout", "course", "subject", "sign_up"],
   });
