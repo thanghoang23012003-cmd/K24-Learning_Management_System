@@ -10,6 +10,7 @@ i18n
     interpolation: {
       escapeValue: false // react already safes from xss
     },
+    fallbackLng: false,
     backend: {
       loadPath: `${import.meta.env.BASE_URL}locales/{{lng}}/{{ns}}.json`
     },
