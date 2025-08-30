@@ -8,6 +8,7 @@ import Dashboard from "./pages/admin/Dashboard";
 import Sidebar from "./components/layout/Sidebar";
 import CreateCourse from "./pages/admin/CreateCourse";
 import CreateSubject from "./pages/admin/CreateSubject";
+import SignUp from "./pages/SignUp";
 
 export default function App() {
   return (
@@ -18,6 +19,7 @@ export default function App() {
           <Route path="/" element={<Home />} />
           <Route path="/courses/:id" element={<DetailCourse />} />
           <Route path="/login" element={<Login />} />
+          <Route path="/sign_up" element={<SignUp />} />
         </Route>
 
         {/* Group admin */}
