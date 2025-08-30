@@ -12,23 +12,21 @@ import SignUp from "./pages/SignUp";
 
 export default function App() {
   return (
-    <Router>
-      <Routes>
-        {/* Group các routes bình thường */}
-        <Route element={<UserHeader />}>
-          <Route path="/" element={<Home />} />
-          <Route path="/courses/:id" element={<DetailCourse />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/sign_up" element={<SignUp />} />
-        </Route>
+    <Routes>
+      {/* Group các routes bình thường */}
+      <Route element={<UserHeader />}>
+        <Route path="/" element={<Home />} />
+        <Route path="/courses/:id" element={<DetailCourse />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/sign_up" element={<SignUp />} />
+      </Route>
 
-        {/* Group admin */}
-        <Route element={<Sidebar />}>
-          <Route path="/admin/dashboard" element={<Dashboard />} />
-          <Route path="/admin/course/create" element={<CreateCourse />} />
-          <Route path="/admin/course/:id/subject/create" element={<CreateSubject />} />
-        </Route>
-      </Routes>
-    </Router>
+      {/* Group admin */}
+      <Route element={<Sidebar />}>
+        <Route path="/admin/dashboard" element={<Dashboard />} />
+        <Route path="/admin/course/create" element={<CreateCourse />} />
+        <Route path="/admin/course/:id/subject/create" element={<CreateSubject />} />
+      </Route>
+    </Routes>
   );
 }
