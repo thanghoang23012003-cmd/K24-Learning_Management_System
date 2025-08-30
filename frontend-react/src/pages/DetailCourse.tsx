@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Link, useParams } from "react-router-dom";
 import Footer from "../components/layout/Footer";
@@ -34,26 +34,6 @@ function RatingInline({
         <span className="text-slate-600 whitespace-nowrap">{textAfter}</span>
       ) : null}
     </div>
-  );
-}
-
-/* Chevron icon cho accordion */
-function Chevron({ open }: { open: boolean }) {
-  return (
-    <svg
-      viewBox="0 0 24 24"
-      className={`w-4 h-4 transition-transform ${open ? "rotate-180" : "rotate-0"}`}
-      aria-hidden="true"
-    >
-      <path
-        d="M7 10l5 5 5-5"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
   );
 }
 
@@ -182,7 +162,7 @@ function StarRow({ stars, percent }: { stars: number; percent: number }) {
 
 /* ===================== Page ===================== */
 export default function DetailCourse() {
-  const { id } = useParams<{ id: string }>();
+  // const { id } = useParams<{ id: string }>();
   const { t } = useTranslation();
   const [activeTab, setActiveTab] = useState<string>(
     t("tab_description", { ns: "course", defaultValue: "Description" })
