@@ -57,34 +57,6 @@ function Chevron({ open }: { open: boolean }) {
   );
 }
 
-/* Accordion section wrapper */
-function AccordionSection({
-  title,
-  children,
-  defaultOpen = true,
-  borderTop = true,
-}: {
-  title: string;
-  children: React.ReactNode;
-  defaultOpen?: boolean;
-  borderTop?: boolean;
-}) {
-  const [open, setOpen] = useState(defaultOpen);
-  return (
-    <div className={`${borderTop ? "border-t border-slate-200" : ""}`}>
-      <button
-        type="button"
-        className="w-full flex items-center justify-between py-4 cursor-pointer"
-        onClick={() => setOpen((v) => !v)}
-      >
-        <span className="font-medium text-slate-900">{title}</span>
-        <Chevron open={open} />
-      </button>
-      {open && <div className="pb-4">{children}</div>}
-    </div>
-  );
-}
-
 /* Tabs dạng button, active nền xám */
 function TabsButtons({
   active,
@@ -217,7 +189,7 @@ export default function DetailCourse() {
   );
 
   /* ---------- breadcrumb title (dùng id nếu có) ---------- */
-  const courseTitle = id || t("default_course_title", { ns: "course", defaultValue: "Introduction to User Experience Design" });
+  // const courseTitle = id || t("default_course_title", { ns: "course", defaultValue: "Introduction to User Experience Design" });
 
   /* Testimonials data + carousel paging (3 cards / trang) */
   const TESTIMONIALS = useMemo(
