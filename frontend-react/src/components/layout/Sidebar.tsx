@@ -52,7 +52,7 @@ export default function Sidebar({ isExpanded = true, onToggle }: SidebarProps) {
             <div className="flex justify-between items-center self-stretch relative">
               <div className="flex items-center relative" style={{ gap: '5px' }}>
                 <div className="ml-4 flex w-40 flex-shrink-0 items-center cursor-pointer">
-                  <img src="/public/logos/logo.png" alt="Byway Logo" className="h-8 w-8 mr-2" />
+                  <img src="logos/logo.png" alt="Byway Logo" className="h-8 w-8 mr-2" />
                   <span className="text-white font-medium text-base">Byway</span>
                 </div>
               </div>
@@ -133,18 +133,18 @@ export default function Sidebar({ isExpanded = true, onToggle }: SidebarProps) {
 // Icon Components
 function DashboardIcon() {
   return (
-    <img src="/image/icons/dashboard.svg" alt="Dashboard Icon" />
+    <img src="image/icons/dashboard.svg" alt="Dashboard Icon" />
   );
 }
 
 function CoursesIcon() {
   return (
-    <img src="/image/icons/course.svg" alt="Courses Icon" />
+    <img src="image/icons/course.svg" alt="Courses Icon" />
   );
 }
 
 function SettingIcon() {
   return (
-    <img src="/image/icons/setting.svg" alt="Setting Icon" />
+    <img src="image/icons/setting.svg" alt="Setting Icon" />
   );
 }

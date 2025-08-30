@@ -1,5 +1,5 @@
 import "./index.css"; // Ensure you import your CSS file
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { HashRouter as Router, Routes, Route } from "react-router-dom";
 import Home from "./pages/Home";
 import UserHeader from "./components/layout/UserHeader";
 import DetailCourse from "./pages/DetailCourse";
@@ -12,7 +12,7 @@ import SignUp from "./pages/SignUp";
 
 export default function App() {
   return (
-    <Router basename={`${import.meta.env.BASE_URL}`}>
+    <Router>
       <Routes>
         {/* Group các routes bình thường */}
         <Route element={<UserHeader />}>
