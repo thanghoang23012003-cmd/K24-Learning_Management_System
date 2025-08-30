@@ -13,7 +13,7 @@ export default function UserHeader() {
         <div className="flex items-center justify-start w-full h-full px-20">
           {/* Logo and Brand */}
           <div className="flex w-40 flex-shrink-0 items-center cursor-pointer">
-            <img src="/public/logos/logo.png" alt="Byway Logo" className="h-8 w-8 mr-2" />
+            <img src="logos/logo.png" alt="Byway Logo" className="h-8 w-8 mr-2" />
             <span className="text-slate-700 font-medium text-base">Byway</span>
           </div>
 

@@ -12,7 +12,7 @@ export default function Footer() {
               <div>
                 <div className="flex items-center gap-3 mb-4">
                   <img
-                    src="/public/logos/logo.png"
+                    src="logos/logo.png"
                     alt="Byway Logo"
                     className="h-8 w-8"
                   />
@@ -96,11 +96,11 @@ export default function Footer() {
                 {/* Socials */}
                 <div className="mt-4 flex items-center gap-3">
                   {[
-                    "/public/image/icons/iconfb.png",
-                    "/public/image/icons/icongithub.png",
-                    "/public/image/icons/icongg.png",
-                    "/public/image/icons/icontwitter.png",
-                    "/public/image/icons/iconmicrosoft.png",
+                    "image/icons/iconfb.png",
+                    "image/icons/icongithub.png",
+                    "image/icons/icongg.png",
+                    "image/icons/icontwitter.png",
+                    "image/icons/iconmicrosoft.png",
                   ].map((src, i) => (
                     <a key={i} href="#" className="inline-block">
                       <img
