@@ -9,6 +9,7 @@ import Sidebar from "./components/layout/Sidebar";
 import CreateCourse from "./pages/admin/CreateCourse";
 import CreateSubject from "./pages/admin/CreateSubject";
 import SignUp from "./pages/SignUp";
+import Homepage from "./pages/Homepage";
 
 export default function App() {
   return (
@@ -17,6 +18,7 @@ export default function App() {
         {/* Group các routes bình thường */}
         <Route element={<UserHeader />}>
           <Route path="/" element={<Home />} />
+          <Route path="/homepage" element={<Homepage />} />
           <Route path="/courses/:id" element={<DetailCourse />} />
           <Route path="/login" element={<Login />} />
           <Route path="/sign_up" element={<SignUp />} />
