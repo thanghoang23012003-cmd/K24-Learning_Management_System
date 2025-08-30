@@ -16,3 +16,4 @@
 3. Giữ nguyên phần base, ở phần compare thì chọn nhánh muốn merge vào master
 4. Chọn create pull request và submit
 5. Liên hệ B để merge pull
+{t("title", {ns: 'homepage'})}
