@@ -1,0 +1,5 @@
+{
+  "required": "{propertyTranslated} is required",
+  "unique": "{propertyTranslated} must be unique",
+  "invalid": "{propertyTranslated} is invalid"
+}

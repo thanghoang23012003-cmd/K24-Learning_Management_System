@@ -65,7 +65,7 @@ function AccordionSection({
   );
 }
 
-export default function Home() {
+export default function ListCourses() {
   const { t } = useTranslation();
 
   /* ===== MOCK DATA ===== */
