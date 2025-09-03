@@ -1,6 +1,6 @@
 import "./index.css"; // Ensure you import your CSS file
 import { HashRouter as Router, Routes, Route } from "react-router-dom";
-import Home from "./pages/Home";
+import ListCourses from "./pages/ListCourses";
 import UserHeader from "./components/layout/UserHeader";
 import DetailCourse from "./pages/DetailCourse";
 import Login from "./pages/Login";
@@ -19,8 +19,8 @@ export default function App() {
         <Routes>
           {/* Group các routes bình thường */}
           <Route element={<UserHeader />}>
-            <Route path="/" element={<Home />} />
-            <Route path="/homepage" element={<Homepage />} />
+            <Route path="/" element={<Homepage />} />
+            <Route path="/courses" element={<ListCourses />} />
             <Route path="/courses/:id" element={<DetailCourse />} />
             <Route path="/login" element={<Login />} />
             <Route path="/sign_up" element={<SignUp />} />

@@ -1,8 +1,12 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next'; 
+import { useNavigate } from 'react-router-dom';
+import toast from "react-hot-toast";
 
 export default function SignUp() {
   const { t } = useTranslation("sign_up"); 
+  const [errors, setErrors] = useState<string[]>([]);
+ const navigate = useNavigate();
 
   const [formData, setFormData] = useState({
     firstName: '',
@@ -20,14 +24,34 @@ export default function SignUp() {
     });
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
     if (formData.password !== formData.confirmPassword) {
-      alert('Passwords do not match!');
+      setErrors([t('validates.not_match_password', {ns: 'sign_up'})]);
       return;
     }
-    console.log('Sign up data:', formData);
-    alert('Account created successfully!');
+
+    try {
+      const res = await fetch(`${import.meta.env.VITE_BE_DOMAIN}/auth/register`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData),
+      });
+
+      if (!res.ok) {
+        const errData = await res.json();
+        setErrors(errData.message || [t('validates.fail', {ns: 'sign_up'})]);
+        return;
+      }
+
+      setErrors([]);
+      toast.success(t('validates.success', {ns: 'sign_up'}));
+      navigate("/login");
+    } catch (err) {
+      console.log(err)
+      setErrors([t('validates.error', {ns: 'sign_up'})]);
+    }
   };
 
   return (
@@ -48,8 +72,17 @@ export default function SignUp() {
         <div className="md:w-1/2 bg-white p-8 flex flex-col justify-center">
           <h1 className="text-2xl font-semibold text-gray-800 mb-6 text-center">
             {t('create_your_account', { Sign_Up: 'sign_up' })}
-            
           </h1>
+
+          {errors.length > 0 && (
+            <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded">
+              <ul className="list-disc list-inside text-sm">
+                {errors.map((error, index) => (
+                  <li key={index}>{error}</li>
+                ))}
+              </ul>
+            </div>
+          )}
 
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Full Name */}
