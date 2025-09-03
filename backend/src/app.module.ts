@@ -6,7 +6,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { AuthModule } from './auth/auth.module';
 import { I18nModule, QueryResolver } from 'nestjs-i18n';
 import * as path from 'path';
-import { CustomI18nValidationExceptionFilter } from './guard/CustomI18nValidationExceptionFilter';
+import { CustomI18nValidationExceptionFilter } from './guard/custom-i18n-validation-exception-filter.guard';
 
 @Module({
   imports: [
