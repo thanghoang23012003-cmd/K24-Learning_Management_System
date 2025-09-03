@@ -10,27 +10,33 @@ import CreateCourse from "./pages/admin/CreateCourse";
 import CreateSubject from "./pages/admin/CreateSubject";
 import SignUp from "./pages/SignUp";
 import Homepage from "./pages/Homepage";
+import { Toaster } from "react-hot-toast";
 
 export default function App() {
   return (
-    <Router>
-      <Routes>
-        {/* Group các routes bình thường */}
-        <Route element={<UserHeader />}>
-          <Route path="/" element={<Home />} />
-          <Route path="/homepage" element={<Homepage />} />
-          <Route path="/courses/:id" element={<DetailCourse />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/sign_up" element={<SignUp />} />
-        </Route>
+    <>
+      <Router>
+        <Routes>
+          {/* Group các routes bình thường */}
+          <Route element={<UserHeader />}>
+            <Route path="/" element={<Home />} />
+            <Route path="/homepage" element={<Homepage />} />
+            <Route path="/courses/:id" element={<DetailCourse />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/sign_up" element={<SignUp />} />
+          </Route>
 
-        {/* Group admin */}
-        <Route element={<Sidebar />}>
-          <Route path="/admin/dashboard" element={<Dashboard />} />
-          <Route path="/admin/course/create" element={<CreateCourse />} />
-          <Route path="/admin/course/:id/subject/create" element={<CreateSubject />} />
-        </Route>
-      </Routes>
-    </Router>
+          {/* Group admin */}
+          <Route element={<Sidebar />}>
+            <Route path="/admin/dashboard" element={<Dashboard />} />
+            <Route path="/admin/course/create" element={<CreateCourse />} />
+            <Route path="/admin/course/:id/subject/create" element={<CreateSubject />} />
+          </Route>
+        </Routes>
+      </Router>
+      
+      {/* Toaster hiển thị toast */}
+      <Toaster position="top-right" reverseOrder={false} />
+    </>
   );
 }
