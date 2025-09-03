@@ -1,14 +1,27 @@
 import { useState } from 'react';
 import { useTranslation } from "react-i18next";
+import { useAuth } from '../hooks/useAuth';
+import toast from "react-hot-toast";
+import { useNavigate } from 'react-router-dom';
 
 export default function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const { t } = useTranslation();
+  const { login, error } = useAuth();
+ const navigate = useNavigate();
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    console.log('Login:', { email, password });
+
+    login(email, password);
+
+    if (error) {
+      toast.error(t('login_failed', { ns: 'login' }));
+    } else {
+      toast.success(t('login_success', { ns: 'login' }));
+      navigate("/")
+    }
   };
 
   return (

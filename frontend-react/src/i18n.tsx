@@ -12,7 +12,7 @@ i18n
     },
     fallbackLng: false,
     backend: {
-      loadPath: `${import.meta.env.BASE_URL}locales/{{lng}}/{{ns}}.json`
+      loadPath: `${import.meta.env.VITE_APP_BASE ? import.meta.env.VITE_APP_BASE : ''}locales/{{lng}}/{{ns}}.json`
     },
     ns: ["translation", "dashboard", "homepage", "login", "adminDashboard", "layout", "course", "subject", "sign_up"],
   });
