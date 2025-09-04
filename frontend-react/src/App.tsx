@@ -9,6 +9,7 @@ import Sidebar from "./components/layout/Sidebar";
 import CreateCourse from "./pages/admin/CreateCourse";
 import CreateSubject from "./pages/admin/CreateSubject";
 import SignUp from "./pages/SignUp";
+import Profile from "./pages/Profile";
 import Homepage from "./pages/Homepage";
 import { Toaster } from "react-hot-toast";
 
@@ -24,6 +25,7 @@ export default function App() {
             <Route path="/courses/:id" element={<DetailCourse />} />
             <Route path="/login" element={<Login />} />
             <Route path="/sign_up" element={<SignUp />} />
+            <Route path="/profile" element={<Profile />} />
           </Route>
 
           {/* Group admin */}

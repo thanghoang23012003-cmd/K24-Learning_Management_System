@@ -14,7 +14,7 @@ i18n
     backend: {
       loadPath: `${import.meta.env.VITE_APP_BASE ? import.meta.env.VITE_APP_BASE : ''}locales/{{lng}}/{{ns}}.json`
     },
-    ns: ["translation", "dashboard", "homepage", "login", "adminDashboard", "layout", "course", "subject", "sign_up"],
+    ns: ["translation", "dashboard", "homepage", "login", "profile", "adminDashboard", "layout", "course", "subject", "sign_up"],
   });
 
 export default i18n;
