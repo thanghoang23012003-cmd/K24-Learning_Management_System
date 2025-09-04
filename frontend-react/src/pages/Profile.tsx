@@ -4,7 +4,7 @@ import Footer from '../components/layout/Footer';
 
 export default function Profile() {
   const { t } = useTranslation('profile');
-  const [activeTab, setActiveTab] = useState<'profile' | 'courses' | 'reviews'>('profile');
+  const [activeTab, setActiveTab] = useState<'profile' | 'courses' | 'reviews' | 'teachers' | 'messages'>('profile');
 
   // Mock data for courses and reviews
   const courses = [
