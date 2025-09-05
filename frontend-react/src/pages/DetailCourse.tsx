@@ -6,6 +6,7 @@ import { useApi } from "../hooks/useAPI";
 import { formatDateTime } from "../utils/base.util";
 import type { Course } from "./ListCourses";
 import toast from "react-hot-toast";
+import { useAuth } from "../hooks/useAuth";
 
 /* ===================== Helpers ===================== */
 /** Sao nguyên (không 1/2), luôn làm tròn lên */
@@ -187,6 +188,7 @@ export default function DetailCourse() {
   const [otherCourses, setOtherCourses] = useState<Course[]>([]);
   const [countReviewsToShow, setCountReviewsToShow] = useState(3);
 
+  const { isLoggedIn } = useAuth();
   const { getCourseById, getCourseReviews, getTrendingCoursesByLimit, createReview } = useApi();
 
   const navigate = useNavigate();
@@ -395,7 +397,7 @@ export default function DetailCourse() {
               t("tab_certification", { ns: "course", defaultValue: "Certification" }),
               t("tab_instructor", { ns: "course", defaultValue: "Instructor" }),
               t("tab_syllabus", { ns: "course", defaultValue: "Syllabus" }),
-              t("tab_reviews", { ns: "course", defaultValue: "Reviews" }),
+              ...(isLoggedIn ? [t("tab_reviews", { ns: "course", defaultValue: "Reviews" })] : [])
             ]}
           />
 
