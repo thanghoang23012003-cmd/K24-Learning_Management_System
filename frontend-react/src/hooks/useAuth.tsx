@@ -1,5 +1,5 @@
 import { useSelector, useDispatch } from "react-redux";
-import { currentUser, login, logout } from "../store/authSlice";
+import { currentUser, logout, setLogin } from "../store/authSlice";
 import type { RootState, AppDispatch } from "../store";
 import { useEffect, useState } from "react";
 
@@ -15,8 +15,8 @@ export const useAuth = () => {
 
   return {
     ...auth, // { token, user }
-    login: (username: string, password: string) => {
-      dispatch(login({ username, password }));
+    setLogin: async (token: string, user: any) => {
+      await dispatch(setLogin({ token, user }));
     },
     logout: () => {
       dispatch(logout());

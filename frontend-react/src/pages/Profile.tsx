@@ -1,10 +1,30 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import Footer from '../components/layout/Footer';
+import { useApi } from '../hooks/useAPI';
+import { beFileUrl, urlToFile } from '../utils/base.util';
+import toast from 'react-hot-toast';
 
 export default function Profile() {
   const { t } = useTranslation('profile');
-  const [activeTab, setActiveTab] = useState<'profile' | 'courses' | 'reviews' | 'teachers' | 'messages'>('profile');
+  const [activeTab, setActiveTab] = useState<'profile' | 'courses' | 'reviews'>('profile');
+  const { getProfile, updateProfile } = useApi();
+  const [formData, setFormData] = useState({
+    firstName: "",
+    lastName: "",
+    username: "",
+    email: "",
+    description: "",
+    website: "",
+    linkedIn: "",
+    youtube: "",
+    facebook: "",
+    avatar: null as (File | null),
+  });
+  
+  useEffect(() => {
+    fetchProfile();
+  }, []);
 
   // Mock data for courses and reviews
   const courses = [
@@ -40,91 +60,202 @@ export default function Profile() {
     },
   ];
 
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
+  };
+
+  const handleChangeFile = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]; // dùng optional chaining
+    if (!file) return
+
+    setFormData(prev => ({ ...prev, avatar: file }));
+  };
+
+  const loadFormData = async (user: any) => {
+    const avatarFile = user?.avatar ? await urlToFile(beFileUrl(user?.avatar)) : null;
+  
+    setFormData(prev => ({
+      ...prev,
+      firstName: user?.firstName || '',
+      lastName: user?.lastName || '',
+      username: user?.username || '',
+      email: user?.email || '',
+      description: user?.description || '',
+      website: user?.website || '',
+      linkedIn: user?.linkedIn || '',
+      youtube: user?.youtube || '',
+      facebook: user?.facebook || '',
+      avatar: avatarFile,
+    }));
+  }
+
+  const fetchProfile = async () => {
+    try {
+      const response = await getProfile();
+      loadFormData(response.data);
+    } catch (error) {
+      console.error("Error fetching profile:", error);
+    }
+  }
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    // Tạo FormData
+    const payload = new FormData();
+    Object.entries(formData).forEach(([key, value]) => {
+      if (value instanceof File) {
+        payload.append(key, value); // file
+      } else if (typeof value === "string") {
+        payload.append(key, value); // string
+      }
+    });
+
+    try {
+      const response = await updateProfile(payload);
+      await loadFormData(response.data);
+      toast.success(t("messages.updateSuccess"));
+    } catch (error) {
+      toast.error(t("messages.updateError"));
+    }
+  };
+
   const renderContent = () => {
     switch (activeTab) {
       case 'profile':
         return (
-          <div className="p-8 w-full">
-            <h2 className="text-2xl font-bold mb-6">{t("profileinfo", {ns: 'profile'})}</h2>
-            <div className="grid grid-cols-2 gap-6 bg-white rounded-2xl shadow p-6">
-              {/* First Name */}
-              <div>
-                <label className="block text-gray-600 mb-1">{t("firstname", {ns: 'profile'})}</label>
-                <input className="w-full border p-2 rounded" placeholder={t("firstname", {ns: 'profile'})} />
-              </div>
-
-              {/* Last Name */}
-              <div>
-                <label className="block text-gray-600 mb-1">{t("lastName", {ns: 'profile'})} </label>
-                <input className="w-full border p-2 rounded" placeholder={t("lastName", {ns: 'profile'})} />
-              </div>
-
-              {/* Headline */}
-              <div className="col-span-2">
-                <label className="block text-gray-600 mb-1">{t("headline", {ns: 'profile'})} </label>
-                <input className="w-full border p-2 rounded" placeholder={t("headline", {ns: 'profile'})}/>
-              </div>
-
-              {/* Description */}
-              <div className="col-span-2">
-                <label className="block text-gray-600 mb-1">{t("description", {ns: 'profile'})}</label>
-                <textarea className="w-full border p-2 rounded h-24" placeholder={t("description", {ns: 'profile'})} />
-              </div>
-
-              {/* Language */}
-              <div className="col-span-2">
-                <label className="block text-gray-600 mb-1">{t("language", {ns: 'profile'})}</label>
-                <select className="w-full border p-2 rounded">
-                  <option value="en">English</option>
-                  <option value="vi">Vietnamese</option>
-                </select>
-              </div>
-
-              {/* Image Preview */}
-              <div className="col-span-2">
-                <label className="block text-gray-600 mb-2">{t("imagePreview", {ns: 'profile'})}</label>
-                <div className="border-2 border-dashed border-gray-300 rounded-xl h-32 flex items-center justify-center bg-gray-50 mb-3">
-                  <img
-                    src="https://picsum.photos/id/1/100/100"
-                    alt="preview"
-                    className="w-16 h-16 rounded-full object-cover"
+          <form onSubmit={handleSubmit} >
+            <div className="p-8 w-full">
+              <h2 className="text-2xl font-bold mb-6">{t("profileinfo", {ns: 'profile'})}</h2>
+              <div className="grid grid-cols-2 gap-6 bg-white rounded-2xl shadow p-6">
+                {/* First Name */}
+                <div>
+                  <label className="block text-gray-600 mb-1">{t("firstname", {ns: 'profile'})}</label>
+                  <input
+                    name="firstName"
+                    value={formData.firstName}
+                    onChange={handleChange}
+                    placeholder={t("firstname", { ns: 'profile' })}
+                    className="w-full border p-2 rounded"
                   />
                 </div>
-                <input type="file" accept="image/*" className="hidden" id="image-upload" />
-                <label htmlFor="image-upload" className="bg-blue-600 text-white px-4 py-2 rounded-lg cursor-pointer hover:bg-blue-700 transition">
-                  {t("uploadImage", {ns: 'profile'})}
-                </label>
-              </div>
 
-              {/* Links */}
-              <div className="col-span-2 space-y-3">
-                <label className="block text-gray-600">{t('links')}</label>
-                <div className="flex items-center gap-2">
-                  <span className="text-gray-500 w-20">Website:</span>
-                  <input className="flex-1 border p-2 rounded" placeholder="https://example.com" />
+                {/* Last Name */}
+                <div>
+                  <label className="block text-gray-600 mb-1">{t("lastName", {ns: 'profile'})} </label>
+                  <input
+                    name="lastName"
+                    value={formData.lastName}
+                    onChange={handleChange}
+                    placeholder={t("lastName", { ns: 'profile' })}
+                    className="w-full border p-2 rounded"
+                  />
                 </div>
-                <div className="flex items-center gap-2">
-                  <span className="text-gray-500 w-20">LinkedIn:</span>
-                  <input className="flex-1 border p-2 rounded" placeholder="https://linkedin.com/in/johndoe" />
-                </div>
-                <div className="flex items-center gap-2">
-                  <span className="text-gray-500 w-20">YouTube:</span>
-                  <input className="flex-1 border p-2 rounded" placeholder="https://youtube.com/@johndoe" />
-                </div>
-                <div className="flex items-center gap-2">
-                  <span className="text-gray-500 w-20">Facebook:</span>
-                  <input className="flex-1 border p-2 rounded" placeholder="https://facebook.com/johndoe" />
-                </div>
-              </div>
 
-              {/* Save Button */}
-              <div className="col-span-2 flex justify-end mt-4">
-                <button className="bg-blue-600 text-white px-6 py-2 rounded-lg shadow hover:bg-blue-700 transition">
-                  {t("saveProfile", {ns: 'profile'})}
-                </button>
+                {/* User name */}
+                <div className="col-span-2">
+                  <label className="block text-gray-600 mb-1">{t("headline", {ns: 'profile'})} </label>
+                  <input
+                    name="username"
+                    value={formData.username}
+                    disabled
+                    placeholder={t("headline", { ns: 'profile' })}
+                    className="w-full border p-2 rounded disabled:bg-gray-100"
+                  />
+                </div>
+
+                {/* Email */}
+                <div className="col-span-2">
+                  <label className="block text-gray-600 mb-1">{t("email", {ns: 'profile'})} </label>
+                  <input
+                    name="email"
+                    disabled
+                    value={formData.email}
+                    placeholder={t("email", { ns: 'profile' })}
+                    className="w-full border p-2 rounded disabled:bg-gray-100"
+                  />
+                </div>
+
+                {/* Description */}
+                <div className="col-span-2">
+                  <label className="block text-gray-600 mb-1">{t("description", {ns: 'profile'})}</label>
+                  <input
+                    name="description"
+                    value={formData.description}
+                    onChange={handleChange}
+                    placeholder={t("description", { ns: 'profile' })}
+                    className="w-full border p-2 rounded"
+                  />
+                </div>
+
+                {/* Image Preview */}
+                <div className="col-span-2">
+                  <label className="block text-gray-600 mb-2">{t("imagePreview", {ns: 'profile'})}</label>
+                  <div className="border-2 border-dashed border-gray-300 rounded-xl h-32 flex items-center justify-center bg-gray-50 mb-3">
+                    {renderAvatar()}
+                  </div>
+                  
+                  <input onChange={handleChangeFile} type="file" accept="image/*" className="hidden" id="image-upload" />
+                  <label htmlFor="image-upload" className="bg-blue-600 text-white px-4 py-2 rounded-lg cursor-pointer hover:bg-blue-700 transition">
+                    {t("uploadImage", {ns: 'profile'})}
+                  </label>
+                </div>
+
+                {/* Links */}
+                <div className="col-span-2 space-y-3">
+                  <label className="block text-gray-600">{t('links')}</label>
+                  <div className="flex items-center gap-2">
+                    <span className="text-gray-500 w-20">Website:</span>
+                    <input
+                      name="website"
+                      value={formData.website}
+                      onChange={handleChange}
+                      placeholder="https://example.com"
+                      className="w-full border p-2 rounded"
+                    />
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-gray-500 w-20">LinkedIn:</span>
+                    <input
+                      name="linkedIn"
+                      value={formData.linkedIn}
+                      onChange={handleChange}
+                      placeholder="https://linkedin.com/in/johndoe"
+                      className="w-full border p-2 rounded"
+                    />
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-gray-500 w-20">YouTube:</span>
+                    <input
+                      name="youtube"
+                      value={formData.youtube}
+                      onChange={handleChange}
+                      placeholder="https://youtube.com/@johndoe"
+                      className="flex-1 border p-2 rounded"
+                    />
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-gray-500 w-20">Facebook:</span>
+                    <input
+                      name="facebook"
+                      value={formData.facebook}
+                      onChange={handleChange}
+                      placeholder="https://facebook.com/johndoe"
+                      className="flex-1 border p-2 rounded"
+                    />
+                  </div>
+                </div>
+
+                {/* Save Button */}
+                <div className="col-span-2 flex justify-end mt-4">
+                  <button type="submit" className="bg-blue-600 text-white px-6 py-2 rounded-lg shadow hover:bg-blue-700 transition">
+                    {t("saveProfile", {ns: 'profile'})}
+                  </button>
+                </div>
               </div>
             </div>
-          </div>
+          </form>
         );
 
       case 'courses':
@@ -226,6 +357,21 @@ export default function Profile() {
     }
   };
 
+  const renderAvatar = () => {
+    return formData.avatar ? (
+      <img
+        src={URL.createObjectURL(formData.avatar)}
+        alt="preview"
+        className="w-16 h-16 rounded-full object-cover"
+      />
+    ) : (
+      <div
+        className="w-16 h-16 rounded-full bg-slate-700 flex items-center justify-center text-white font-medium cursor-pointer"
+      >
+        {formData?.username?.charAt(0)?.toUpperCase() || "B"}
+      </div>);
+  }
+
   return (
     <>
       {/* Wrapper: min-h-screen */}
@@ -235,11 +381,7 @@ export default function Profile() {
           {/* Sidebar */}
           <aside className="w-72 bg-white border-r shadow-sm p-6">
             <div className="flex flex-col items-center mb-8">
-              <img
-                src="https://picsum.photos/id/1/100/100"
-                alt="avatar"
-                className="rounded-full mb-3 w-20 h-20 object-cover"
-              />
+              {renderAvatar()}
               <p className="font-semibold text-lg">John Doe</p>
               <button className="mt-2 text-blue-600 text-sm">{t('shareProfile')}</button>
             </div>
@@ -264,26 +406,6 @@ export default function Profile() {
                 onClick={() => setActiveTab('courses')}
               >
                 {t('myCourses')}
-              </button>
-              <button
-                className={`block w-full text-left px-4 py-2 rounded-lg ${
-                  activeTab === 'teachers'
-                    ? 'bg-blue-600 text-white shadow'
-                    : 'hover:bg-gray-100'
-                }`}
-                onClick={() => setActiveTab('teachers')}
-              >
-                {t('teachers')}
-              </button>
-              <button
-                className={`block w-full text-left px-4 py-2 rounded-lg ${
-                  activeTab === 'messages'
-                    ? 'bg-blue-600 text-white shadow'
-                    : 'hover:bg-gray-100'
-                }`}
-                onClick={() => setActiveTab('messages')}
-              >
-                {t('messages')}
               </button>
               <button
                 className={`block w-full text-left px-4 py-2 rounded-lg ${
