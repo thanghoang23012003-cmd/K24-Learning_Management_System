@@ -2,7 +2,7 @@
 import { UserDocument } from './users.schema';
 
 export class UserSerializer {
-    private static PERMIT = ['_id', 'username', 'email', 'firstName', 'lastName', 'avatar', 'description', 'website', 'linkedIn', 'youtube', 'facebook'];
+    private static PERMIT = ['_id', 'username', 'email', 'firstName', 'lastName', 'avatar', 'description', 'website', 'linkedIn', 'youtube', 'facebook', 'role'];
     private static CONVERT_STRING = ['_id'];
 
     static fromUser(user: UserDocument) {

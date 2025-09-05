@@ -9,6 +9,9 @@ import { I18nModule, QueryResolver } from 'nestjs-i18n';
 import * as path from 'path';
 import { CustomI18nValidationExceptionFilter } from './guard/custom-i18n-validation-exception-filter.guard';
 import { join } from 'path';
+import { CourseModule } from './courses/course.module';
+import { InstructorModule } from './instructors/instructor.module';
+import { ReviewModule } from './reviews/review.module';
 
 @Module({
   imports: [
@@ -33,6 +36,9 @@ import { join } from 'path';
       ],
     }),
     AuthModule,
+    CourseModule,
+    InstructorModule,
+    ReviewModule,
     ServeStaticModule.forRoot({
       rootPath: join(__dirname, '..', 'uploads'),
       serveRoot: '/uploads', // client truy cập http://localhost:3000/uploads/filename.jpg

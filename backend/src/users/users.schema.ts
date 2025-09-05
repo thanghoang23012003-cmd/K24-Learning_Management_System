@@ -28,6 +28,9 @@ export class User {
   @Prop()
   description: string;
   
+  @Prop({ default: 'user' })
+  role: string;
+
   @Prop()
   website: string;
 
@@ -42,6 +45,10 @@ export class User {
 
   @Prop()
   avatar: string;
+
+  isAdmin(): boolean {
+    return this.role === 'admin';
+  }
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);

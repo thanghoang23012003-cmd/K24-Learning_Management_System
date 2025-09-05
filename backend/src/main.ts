@@ -1,7 +1,6 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ConfigService } from '@nestjs/config';
-import { ValidationPipe } from '@nestjs/common';
 import { useContainer } from 'class-validator';
 import { I18nService, I18nValidationPipe } from 'nestjs-i18n';
 import { CustomI18nValidationExceptionFilter } from './guard/custom-i18n-validation-exception-filter.guard';

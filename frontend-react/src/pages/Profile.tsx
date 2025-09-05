@@ -1,9 +1,12 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import Footer from '../components/layout/Footer';
 import { useApi } from '../hooks/useAPI';
 import { beFileUrl, urlToFile } from '../utils/base.util';
 import toast from 'react-hot-toast';
+import type { Course } from './ListCourses';
+import { Stars, type CourseReview } from './DetailCourse';
+import { useNavigate } from 'react-router-dom';
 
 export default function Profile() {
   const { t } = useTranslation('profile');
@@ -21,44 +24,54 @@ export default function Profile() {
     facebook: "",
     avatar: null as (File | null),
   });
-  
+  const [courses, setCourses] = useState<Course[]>([]);
+  const [reviews, setReviews] = useState<CourseReview[]>([]);
+  const { getTrendingCoursesByLimit, getMyReviews } = useApi();
+
+  const [pageCourse, setPageCourse] = useState(1);
+  const [pageReview, setPageReview] = useState(1);
+  const pageSize = 9;
+  const pageReviewSize = 3;
+  const totalCoursePages = Math.ceil(courses.length / pageSize);
+  const totalReviewPages = Math.ceil(reviews.length / pageReviewSize);
+
+  const navigate = useNavigate();
+
   useEffect(() => {
     fetchProfile();
+    fetchCourses();
+    fetchReviews();
   }, []);
+  
+  const fetchCourses = async () => {
+    try {
+      const response = await getTrendingCoursesByLimit(10);
+      setCourses(response.data);
+    } catch (error) {
+      setCourses([]);
+      console.error("Error fetching courses:", error);
+    }
+  };
+  
+  const fetchReviews = async () => {
+    try {
+      const response = await getMyReviews();
+      setReviews(response.data);
+    } catch (error) {
+      setReviews([]);
+      console.error("Error fetching reviews:", error);
+    }
+  };
 
-  // Mock data for courses and reviews
-  const courses = [
-    { id: 1, title: "Beginner’s Guide to Design", instructor: "Ronald Richards", rating: 5, ratingsCount: 1200 },
-    { id: 2, title: "Beginner’s Guide to Design", instructor: "Ronald Richards", rating: 5, ratingsCount: 1200 },
-    { id: 3, title: "Beginner’s Guide to Design", instructor: "Ronald Richards", rating: 5, ratingsCount: 1200 },
-    { id: 4, title: "Beginner’s Guide to Design", instructor: "Ronald Richards", rating: 5, ratingsCount: 1200 },
-    { id: 5, title: "Beginner’s Guide to Design", instructor: "Ronald Richards", rating: 5, ratingsCount: 1200 },
-    { id: 6, title: "Beginner’s Guide to Design", instructor: "Ronald Richards", rating: 5, ratingsCount: 1200 },
-    { id: 7, title: "Beginner’s Guide to Design", instructor: "Ronald Richards", rating: 5, ratingsCount: 1200 },
-    { id: 8, title: "Beginner’s Guide to Design", instructor: "Ronald Richards", rating: 5, ratingsCount: 1200 },
-    { id: 9, title: "Beginner’s Guide to Design", instructor: "Ronald Richards", rating: 5, ratingsCount: 1200 },
-  ];
+  const pagedCourses = useMemo(() => {
+    const start = (pageCourse - 1) * pageSize;
+    return courses.slice(start, start + pageSize);
+  }, [courses, pageCourse]);
 
-  const reviews = [
-    {
-      courseId: 1,
-      title: "Beginner’s Guide to Design",
-      rating: 5,
-      comment: "I was initially apprehensive, having no prior design experience. But the instructor, John Doe, did an amazing job of breaking down complex concepts into easily digestible modules. The video lectures were engaging, and the real-world examples really helped solidify my understanding.",
-    },
-    {
-      courseId: 2,
-      title: "Beginner’s Guide to Design",
-      rating: 5,
-      comment: "The course exceeded my expectations. The content is well-structured and the instructor explains everything clearly.",
-    },
-    {
-      courseId: 3,
-      title: "Beginner’s Guide to Design",
-      rating: 5,
-      comment: "Great course! I learned so much in a short time. Highly recommend it to anyone starting out.",
-    },
-  ];
+  const pagedReviews = useMemo(() => {
+    const start = (pageReview - 1) * pageReviewSize;
+    return reviews.slice(start, start + pageReviewSize);
+  }, [reviews, pageReview]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -288,34 +301,55 @@ export default function Profile() {
 
             {/* Course Cards Grid */}
             <div className="grid grid-cols-3 gap-6">
-              {courses.map((course, index) => (
-                <div key={course.id} className="bg-white rounded-2xl shadow hover:shadow-lg transition p-4">
+              {pagedCourses.map((course, index) => (
+                <div key={course._id} onClick={() => {window.scrollTo(0, 0); navigate(`/courses/${course._id}`)}} className="bg-white rounded-2xl shadow hover:shadow-lg cursor-pointer transition p-4">
                   <img
                     src={`https://picsum.photos/seed/course${index}/400/200`}
                     alt={course.title}
                     className="rounded-xl mb-3 w-full h-32 object-cover"
                   />
                   <h3 className="font-semibold text-lg">{course.title}</h3>
-                  <p className="text-sm text-gray-500">By {course.instructor}</p>
+                  <p className="text-sm text-gray-500">{"Ronald Richards"}</p>
                   <p className="text-yellow-500 text-sm mt-1">
-                    {Array(course.rating).fill(0).map(() => '★').join('')} ({course.ratingsCount} ratings)
+                    {Array(Math.round(course.avgRating)).fill(0).map(() => '★').join('')} ({course.totalRating} {t('ratings')})
                   </p>
                 </div>
               ))}
             </div>
 
-            {/* Pagination */}
-            <div className="flex justify-center mt-6 space-x-2">
-              {[1, 2, 3].map((p) => (
+            {/* ---------- Pagination ---------- */}
+            <div className="mt-8 flex justify-center">
+              <nav
+                className="inline-flex items-center rounded-xl border border-slate-200 bg-white shadow-sm divide-x divide-slate-200"
+                aria-label="Pagination"
+              >
                 <button
-                  key={p}
-                  className={`px-4 py-2 border rounded ${
-                    p === 1 ? 'bg-blue-600 text-white' : 'hover:bg-gray-100'
-                  }`}
+                  className="px-4 py-2 text-slate-600 disabled:text-slate-300 hover:bg-slate-50 cursor-pointer"
+                  onClick={() => setPageCourse(Math.max(1, pageCourse - 1))}
+                  disabled={pageCourse === 1}
                 >
-                  {p}
+                  ‹
                 </button>
-              ))}
+                {Array.from({ length: totalCoursePages }, (_, i) => i + 1).map((p) => (
+                  <button
+                    key={p}
+                    onClick={() => setPageCourse(p)}
+                    className={
+                      "px-4 py-2 text-slate-700 hover:bg-slate-50 cursor-pointer " +
+                      (p === pageCourse ? "bg-slate-700 text-white hover:bg-slate-700" : "")
+                    }
+                  >
+                    {p}
+                  </button>
+                ))}
+                <button
+                  className="px-4 py-2 text-slate-600 disabled:text-slate-300 hover:bg-slate-50 cursor-pointer"
+                  onClick={() => setPageCourse(Math.min(totalCoursePages, pageCourse + 1))}
+                  disabled={pageCourse === totalCoursePages}
+                >
+                  ›
+                </button>
+              </nav>
             </div>
           </div>
         );
@@ -325,29 +359,86 @@ export default function Profile() {
           <div className="p-8 w-full">
             <h2 className="text-2xl font-bold mb-6">{t('myReviews')}</h2>
             <div className="space-y-6">
-              {reviews.map((review, idx) => (
+              {pagedReviews.map((review, idx) => (
                 <div key={idx} className="bg-white rounded-2xl shadow p-6 hover:shadow-lg transition">
                   <p className="font-semibold mb-1">
-                    {t('courseName')}: {review.title}
+                    {t('courseName', { ns: "course" })}: <span onClick={() => {window.scrollTo(0, 0); navigate(`/courses/${review.courseId._id}`)}} className='hover:text-blue-500 cursor-pointer'>{review.courseId.title}</span>
                   </p>
-                  <p className="text-yellow-500">★★★★★</p>
-                  <p className="text-gray-600 mt-2">{review.comment}</p>
+                  <p className="text-yellow-500">{Stars({ value: review.rating })}</p>
+                  <p className="text-gray-600 mt-2">{review.content}</p>
                 </div>
               ))}
             </div>
 
-            {/* Pagination */}
-            <div className="flex justify-center mt-6 space-x-2">
-              {[1, 2, 3].map((p) => (
+            {/* ---------- Pagination ---------- */}
+            <div className="mt-8 flex justify-center">
+              <nav
+                className="inline-flex items-center rounded-xl border border-slate-200 bg-white shadow-sm divide-x divide-slate-200"
+                aria-label="Pagination"
+              >
+                {/* Previous */}
                 <button
-                  key={p}
-                  className={`px-4 py-2 border rounded ${
-                    p === 1 ? 'bg-blue-600 text-white' : 'hover:bg-gray-100'
-                  }`}
+                  className="px-4 py-2 text-slate-600 disabled:text-slate-300 hover:bg-slate-50 cursor-pointer"
+                  onClick={() => setPageReview(Math.max(1, pageReview - 1))}
+                  disabled={pageReview === 1}
                 >
-                  {p}
+                  ‹
                 </button>
-              ))}
+
+                {(() => {
+                  const pages: (number | string)[] = [];
+                  const start = Math.max(1, pageReview - 2);
+                  const end = Math.min(totalReviewPages, pageReview + 2);
+
+                  // Trang đầu
+                  if (start > 1) {
+                    pages.push(1);
+                    if (start > 2) pages.push("...");
+                  }
+
+                  // Các trang giữa
+                  for (let i = start; i <= end; i++) {
+                    pages.push(i);
+                  }
+
+                  // Trang cuối
+                  if (end < totalReviewPages) {
+                    if (end < totalReviewPages - 1) pages.push("...");
+                    pages.push(totalReviewPages);
+                  }
+
+                  return pages.map((p, idx) =>
+                    typeof p === "number" ? (
+                      <button
+                        key={idx}
+                        onClick={() => setPageReview(p)}
+                        className={
+                          "px-4 py-2 text-slate-700 hover:bg-slate-50 cursor-pointer " +
+                          (p === pageReview ? "bg-slate-700 text-white hover:bg-slate-700" : "")
+                        }
+                      >
+                        {p}
+                      </button>
+                    ) : (
+                      <span
+                        key={idx}
+                        className="px-3 py-2 text-slate-400 select-none"
+                      >
+                        {p}
+                      </span>
+                    )
+                  );
+                })()}
+
+                {/* Next */}
+                <button
+                  className="px-4 py-2 text-slate-600 disabled:text-slate-300 hover:bg-slate-50 cursor-pointer"
+                  onClick={() => setPageReview(Math.min(totalReviewPages, pageReview + 1))}
+                  disabled={pageReview === totalReviewPages}
+                >
+                  ›
+                </button>
+              </nav>
             </div>
           </div>
         );
@@ -377,7 +468,7 @@ export default function Profile() {
       {/* Wrapper: min-h-screen */}
       <div className="min-h-screen bg-gray-100 flex flex-col">
         {/* Main */}
-        <main className="flex-1 pb-40 flex">
+        <main className="flex-1 pb-4 flex h-full">
           {/* Sidebar */}
           <aside className="w-72 bg-white border-r shadow-sm p-6">
             <div className="flex flex-col items-center mb-8">

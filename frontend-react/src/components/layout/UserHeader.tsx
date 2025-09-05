@@ -60,7 +60,7 @@ export default function UserHeader() {
 
             {/* Search Bar */}
             <div className="flex items-center gap-2.5 px-2.5 py-2.5 border border-slate-700 rounded-lg w-[622px] h-10">
-              <input className="text-slate-700 text-sm font-medium focus:outline-none focus:border-none w-[90%]" placeholder="Search courses" />
+              <input className="text-slate-700 text-sm font-medium focus:outline-none focus:border-none w-[90%]" placeholder={t('header.search', { ns: 'layout' })} />
             </div>
 
             {/* Teach on Byway */}
@@ -96,7 +96,11 @@ export default function UserHeader() {
                     <div className="absolute right-0 mt-2 w-48 bg-white border border-slate-200 rounded-lg shadow-lg z-50">
                       <ul className="py-2 text-sm text-slate-700">
                         <li onClick={() => navigate('/profile')} className="px-4 py-2 hover:bg-slate-100 cursor-pointer">{t('account.profile', { ns: 'layout' })}</li>
-                        <li className="px-4 py-2 hover:bg-slate-100 cursor-pointer">{t('account.my_courses', { ns: 'layout' })}</li>
+                        {
+                          user?.role === 'admin' && (
+                            <li onClick={() => navigate('/admin/dashboard')} className="px-4 py-2 hover:bg-slate-100 cursor-pointer">{t('account.manager_courses', { ns: 'layout' })}</li>
+                          )
+                        }
                         <li className="px-4 py-2 hover:bg-slate-100 cursor-pointer">{t('account.settings', { ns: 'layout' })}</li>
                         <li onClick={handleLogout} className="px-4 py-2 hover:bg-slate-100 cursor-pointer text-red-600">{t('account.logout', { ns: 'layout' })}</li>
                       </ul>

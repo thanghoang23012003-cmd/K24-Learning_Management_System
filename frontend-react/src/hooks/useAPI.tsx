@@ -27,5 +27,49 @@ export const useApi = () => {
     return api.get('/users/profile');
   };
 
-  return { api, updateProfile, getProfile };
+  const getAllCourses = () => {
+    return api.get('/courses/all');
+  };
+
+  const getCourseById = (id: string) => {
+    return api.get(`/courses/${id}`);
+  };
+
+  const getTrendingCourses = () => {
+    return api.get('/courses/trending');
+  };
+
+  const getTrendingCoursesByLimit = (limit: number) => {
+    return api.get('/courses/trending', { params: { limit } });
+  };
+
+  const getTopInstructors = (limit: number) => {
+    return api.get('/instructors/top', { params: { limit } });
+  };
+
+  const getCourseReviews = (courseId: string) => {
+    return api.get(`/reviews/course/${courseId}`);
+  };
+
+  const getMyReviews = () => {
+    return api.get(`/reviews/my-reviews`);
+  };
+
+  const createReview = (courseId: string, rating: number, content: string) => {
+    return api.post(`/reviews/course/${courseId}`, { rating, content });
+  }
+
+  return { 
+    api, 
+    updateProfile, 
+    getProfile, 
+    getAllCourses, 
+    getCourseById,
+    getTrendingCourses,
+    getTrendingCoursesByLimit,
+    getTopInstructors,
+    getCourseReviews,
+    createReview,
+    getMyReviews
+  };
 };

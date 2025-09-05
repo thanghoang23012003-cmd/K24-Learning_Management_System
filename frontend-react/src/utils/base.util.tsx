@@ -28,3 +28,24 @@ export async function urlToFile(url?: string): Promise<File | null> {
 
   return new File([blob], filename, { type: mimeType });
 }
+
+export const formatDate = (dateString: string): string => {
+  const date = new Date(dateString);
+  return date.toLocaleDateString(undefined, {
+    year: 'numeric',
+    month: 'numeric',
+    day: 'numeric',
+  });
+}
+
+export const formatDateTime = (dateString: string): string => {
+  const date = new Date(dateString);
+  return date.toLocaleDateString(undefined, {
+    year: 'numeric',
+    month: 'numeric',
+    day: 'numeric',
+  }) + " " + date.toLocaleTimeString(undefined, {
+    hour: 'numeric',
+    minute: 'numeric',
+  });
+}
