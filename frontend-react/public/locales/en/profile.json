@@ -1,0 +1,22 @@
+{
+    "title": "Welcome to your profile",
+    "profileinfo":"Profile Info",
+    "firstname":"First Name ",
+    "lastName":"Last Name",
+    "headline":"Username",
+    "description":"Description",
+    "email":"Email",
+    "imagePreview":"Image Preview",
+    "shareProfile":"Share Profile",
+    "uploadImage":"Upload Image",
+    "saveProfile":"Save Profile",
+    "profile": "Profile",
+    "myCourses": "My Courses",
+    "myReviews": "My Reviews",
+    "searchUser":"Search user...",
+    "ratings":"ratings",
+    "messages": {
+        "updateSuccess": "Profile updated successfully!",
+        "updateError": "Failed to update profile. Please try again."
+    }
+}

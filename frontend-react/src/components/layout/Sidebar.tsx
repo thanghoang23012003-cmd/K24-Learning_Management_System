@@ -1,6 +1,6 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useState } from 'react';
-import { Outlet } from 'react-router-dom';
+import { Outlet, useNavigate } from 'react-router-dom';
 import { faArrowLeft, faBars } from "@fortawesome/free-solid-svg-icons";
 import { useTranslation } from 'react-i18next';
 
@@ -12,6 +12,7 @@ interface SidebarProps {
 export default function Sidebar({ isExpanded = true, onToggle }: SidebarProps) {
   const [activeItem, setActiveItem] = useState('courses');
   const { t } = useTranslation();
+  const navigate = useNavigate();
   console.log(isExpanded, activeItem);
 
   const menuItems = [
@@ -51,7 +52,7 @@ export default function Sidebar({ isExpanded = true, onToggle }: SidebarProps) {
           >
             <div className="flex justify-between items-center self-stretch relative">
               <div className="flex items-center relative" style={{ gap: '5px' }}>
-                <div className="ml-4 flex w-40 flex-shrink-0 items-center cursor-pointer">
+                <div onClick={() => navigate('/')} className="ml-4 flex w-40 flex-shrink-0 items-center cursor-pointer">
                   <img src="logos/logo.png" alt="Byway Logo" className="h-8 w-8 mr-2" />
                   <span className="text-white font-medium text-base">Byway</span>
                 </div>

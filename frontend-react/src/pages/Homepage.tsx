@@ -1,8 +1,41 @@
 import { useTranslation } from 'react-i18next';
 import Footer from '../components/layout/Footer';
+import { useNavigate } from 'react-router-dom';
+import { useApi } from '../hooks/useAPI';
+import type { Course, Instructor } from './ListCourses';
+import { useEffect, useState } from 'react';
 
 export default function Homepage() {
   const { t } = useTranslation('homepage');
+  const navigate = useNavigate();
+  const { getTrendingCourses, getTopInstructors } = useApi();
+  const [trendingCourses, setTrendingCourses] = useState<Course[]>([]);
+  const [topInstructors, setTopInstructors] = useState<Instructor[]>([]);
+
+  useEffect(() => {
+    fetchTrendingCourses();
+    fetchTopInstructors();
+  }, []);
+
+  const fetchTrendingCourses = async () => {
+    try {
+      const response = await getTrendingCourses();
+      setTrendingCourses(response.data);
+    } catch (error) {
+      setTrendingCourses([]);
+      console.error("Error fetching trending courses:", error);
+    }
+  };
+
+  const fetchTopInstructors = async () => {
+    try {
+      const response = await getTopInstructors(5);
+      setTopInstructors(response.data);
+    } catch (error) {
+      setTopInstructors([]);
+      console.error("Error fetching top instructors:", error);
+    }
+  };
 
   // Component Star Rating
   const StarRating = ({ rating = 5 }: { rating?: number }) => (
@@ -42,7 +75,7 @@ export default function Homepage() {
                 </p>
 
                 <div className="mt-6">
-                  <button className="px-6 py-3 rounded-lg bg-blue-600 text-white font-medium shadow hover:bg-blue-700 transition">
+                  <button onClick={() => navigate('/courses')} className="px-6 py-3 rounded-lg bg-blue-600 text-white font-medium shadow hover:bg-blue-700 transition">
                     {t("start", {ns: 'homepage'})}
                   </button>
                 </div>
@@ -130,34 +163,26 @@ export default function Homepage() {
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                {[
-                  { title: 'Beginner’s Guide to Design', instructor: 'By Ronald Richards', rating: 4.8, ratingsCount: '1200 Ratings', duration: '22 Total Hours', lectures: '155 Lectures', level: 'Beginner', price: '$149.9' },
-                  { title: 'Beginner’s Guide to Design', instructor: 'By Ronald Richards', rating: 4.8, ratingsCount: '1200 Ratings', duration: '22 Total Hours', lectures: '155 Lectures', level: 'Beginner', price: '$149.9' },
-                  { title: 'Beginner’s Guide to Design', instructor: 'By Ronald Richards', rating: 4.8, ratingsCount: '1200 Ratings', duration: '22 Total Hours', lectures: '155 Lectures', level: 'Beginner', price: '$149.9' },
-                  { title: 'Beginner’s Guide to Design', instructor: 'By Ronald Richards', rating: 4.8, ratingsCount: '1200 Ratings', duration: '22 Total Hours', lectures: '155 Lectures', level: 'Beginner', price: '$149.9' }
-                ].map((course, i) => (
+                {trendingCourses.map((course, i) => (
                   <article
                     key={i}
-                    className="bg-white border rounded-xl overflow-hidden shadow-sm hover:shadow-md transition group"
+                    onClick={() => {window.scrollTo(0, 0); navigate(`/courses/${course._id}`)}}
+                    className="bg-white border rounded-xl overflow-hidden shadow-sm hover:shadow-md transition group cursor-pointer"
                   >
                     <div className="aspect-video bg-gray-200">
                       <img
-                        className="w-full h-full object-cover"
-                        src={`https://picsum.photos/seed/course${i + 1}/300/200`}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform"
+                        src={`https://picsum.photos/seed/course${course._id}/300/200`}
                         alt={course.title}
                       />
                     </div>
                     <div className="p-4">
                       <h3 className="font-semibold text-gray-900 mb-1">{course.title}</h3>
-                      <p className="text-sm text-gray-600 mb-2">{course.instructor}</p>
+                      <p className="text-sm text-gray-600 mb-2">{"John Doe"}</p>
                       
                       <div className="flex items-center mb-2">
-                        <StarRating rating={course.rating} />
-                        <span className="text-xs text-gray-500 ml-1">({course.ratingsCount})</span>
-                      </div>
-                      
-                      <div className="text-xs text-gray-500 mb-2">
-                        {course.duration} • {course.lectures} • {course.level}
+                        <StarRating rating={course.avgRating} />
+                        <span className="text-xs text-gray-500 ml-1">({course.totalRating})</span>
                       </div>
                       
                       <div className="font-bold text-gray-900">{course.price}</div>
@@ -177,13 +202,7 @@ export default function Homepage() {
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6">
-                {[
-                  { name: 'Ronald Richards', role: 'UI/UX Designer', rating: 4.9, students: '2400 Students' },
-                  { name: 'Ronald Richards', role: 'UI/UX Designer', rating: 4.9, students: '2400 Students' },
-                  { name: 'Ronald Richards', role: 'UI/UX Designer', rating: 4.9, students: '2400 Students' },
-                  { name: 'Ronald Richards', role: 'UI/UX Designer', rating: 4.9, students: '2400 Students' },
-                  { name: 'Ronald Richards', role: 'UI/UX Designer', rating: 4.9, students: '2400 Students' }
-                ].map((inst, i) => (
+                {topInstructors.map((inst, i) => (
                   <div
                     key={i}
                     className="bg-white border rounded-xl p-4 hover:shadow-md transition cursor-pointer"
@@ -197,10 +216,10 @@ export default function Homepage() {
                     </div>
                     <div className="text-center">
                       <h4 className="font-semibold text-gray-900">{inst.name}</h4>
-                      <p className="text-xs text-gray-500">{inst.role}</p>
+                      <p className="text-xs text-gray-500">{inst.position}</p>
                       <div className="flex items-center justify-center mt-2">
-                        <StarRating rating={inst.rating} />
-                        <span className="text-xs text-gray-500 ml-1">{inst.students}</span>
+                        <StarRating rating={inst.avgRating} />
+                        <span className="text-xs text-gray-500 ml-1">({inst.totalReviews})</span>
                       </div>
                     </div>
                   </div>
@@ -215,11 +234,15 @@ export default function Homepage() {
               <div className="flex justify-between items-center mb-6">
                 <h2 className="text-2xl font-bold text-gray-900">{t("what", {ns: 'homepage'})}</h2>
                 <div className="flex space-x-2">
-                  <button className="w-8 h-8 bg-gray-300 rounded-lg flex items-center justify-center text-gray-600">
-                    
+                  <button className="w-8 h-8 bg-gray-300 rounded-lg flex items-center justify-center text-gray-600 cursor-pointer">
+                    <svg width="16" height="16" viewBox="0 0 24 24">
+                      <path d="M15 18l-6-6 6-6" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                    </svg>
                   </button>
-                  <button className="w-8 h-8 bg-gray-300 rounded-lg flex items-center justify-center text-gray-600">
-                    
+                  <button className="w-8 h-8 bg-gray-300 rounded-lg flex items-center justify-center text-gray-600 cursor-pointer">
+                    <svg width="16" height="16" viewBox="0 0 24 24">
+                      <path d="M9 18l6-6-6-6" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                    </svg>
                   </button>
                 </div>
               </div>

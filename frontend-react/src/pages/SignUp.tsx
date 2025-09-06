@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import toast from "react-hot-toast";
 
 export default function SignUp() {
-  const { t } = useTranslation("sign_up"); 
+  const { t, i18n } = useTranslation("sign_up"); 
   const [errors, setErrors] = useState<string[]>([]);
  const navigate = useNavigate();
 
@@ -33,7 +33,7 @@ export default function SignUp() {
     }
 
     try {
-      const res = await fetch(`${import.meta.env.VITE_BE_DOMAIN}/auth/register`, {
+      const res = await fetch(`${import.meta.env.VITE_BE_DOMAIN}/auth/register?lang=${i18n.language}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),

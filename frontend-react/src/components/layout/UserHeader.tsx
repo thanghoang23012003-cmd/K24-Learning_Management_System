@@ -5,10 +5,12 @@ import { useTranslation } from "react-i18next";
 import { Outlet, useNavigate } from "react-router-dom";
 import { useAuth } from "../../hooks/useAuth";
 import toast from "react-hot-toast";
+import Cookies from "js-cookie";
 
 export default function UserHeader() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const [isOpen, setIsOpen] = useState(false);
+  const [isLangOpen, setIsLangOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement | null>(null);
 
   const { isLoggedIn, user, logout } = useAuth();
@@ -32,6 +34,12 @@ export default function UserHeader() {
     toast.success(t('account.logout_success', { ns: 'layout' }));
   };
 
+  const handleChangeLanguage = (lang: string) => {
+    i18n.changeLanguage(lang);
+    Cookies.set("lang", lang);
+    setIsLangOpen(false);
+  }
+
   return (
     <>
       {/* Header */}
@@ -52,7 +60,7 @@ export default function UserHeader() {
 
             {/* Search Bar */}
             <div className="flex items-center gap-2.5 px-2.5 py-2.5 border border-slate-700 rounded-lg w-[622px] h-10">
-              <input className="text-slate-700 text-sm font-medium focus:outline-none focus:border-none w-[90%]" placeholder="Search courses" />
+              <input className="text-slate-700 text-sm font-medium focus:outline-none focus:border-none w-[90%]" placeholder={t('header.search', { ns: 'layout' })} />
             </div>
 
             {/* Teach on Byway */}
@@ -87,8 +95,12 @@ export default function UserHeader() {
                   {isOpen && (
                     <div className="absolute right-0 mt-2 w-48 bg-white border border-slate-200 rounded-lg shadow-lg z-50">
                       <ul className="py-2 text-sm text-slate-700">
-                        <li className="px-4 py-2 hover:bg-slate-100 cursor-pointer">{t('account.profile', { ns: 'layout' })}</li>
-                        <li className="px-4 py-2 hover:bg-slate-100 cursor-pointer">{t('account.my_courses', { ns: 'layout' })}</li>
+                        <li onClick={() => navigate('/profile')} className="px-4 py-2 hover:bg-slate-100 cursor-pointer">{t('account.profile', { ns: 'layout' })}</li>
+                        {
+                          user?.role === 'admin' && (
+                            <li onClick={() => navigate('/admin/dashboard')} className="px-4 py-2 hover:bg-slate-100 cursor-pointer">{t('account.manager_courses', { ns: 'layout' })}</li>
+                          )
+                        }
                         <li className="px-4 py-2 hover:bg-slate-100 cursor-pointer">{t('account.settings', { ns: 'layout' })}</li>
                         <li onClick={handleLogout} className="px-4 py-2 hover:bg-slate-100 cursor-pointer text-red-600">{t('account.logout', { ns: 'layout' })}</li>
                       </ul>
@@ -111,6 +123,35 @@ export default function UserHeader() {
                   </button>
                 </div>
               </>
+            )}
+          </div>
+
+          {/* Language Switcher */}
+          <div className="relative ml-5" ref={dropdownRef}>
+            <button
+              onClick={() => setIsLangOpen(!isLangOpen)}
+              className="px-2 py-1 border border-slate-700 rounded text-sm hover:bg-slate-100"
+            >
+              {i18n.language.toUpperCase()}
+            </button>
+
+            {isLangOpen && (
+              <div className="absolute right-0 mt-2 w-30 bg-white border border-slate-200 rounded-lg shadow-lg z-50">
+                <ul className="py-1 text-sm text-slate-700">
+                  <li
+                    onClick={() => { handleChangeLanguage('en'); }}
+                    className="px-4 py-2 hover:bg-slate-100 cursor-pointer"
+                  >
+                    {t('header.en', { ns: 'layout' })}
+                  </li>
+                  <li
+                    onClick={() => { handleChangeLanguage('vi'); }}
+                    className="px-4 py-2 hover:bg-slate-100 cursor-pointer"
+                  >
+                    {t('header.vi', { ns: 'layout' })}
+                  </li>
+                </ul>
+              </div>
             )}
           </div>
         </div>

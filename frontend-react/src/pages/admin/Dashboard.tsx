@@ -1,5 +1,7 @@
-import React from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { useApi } from "../../hooks/useAPI";
+import type { Course } from "../ListCourses";
 
 /* ---- small UI helpers ---- */
 function Badge({ children }: { children: React.ReactNode }) {
@@ -21,19 +23,30 @@ function Metric({ value, label }: { value: string | number; label: string }) {
 
 export default function Dashboard() {
   const { t } = useTranslation();
+  const [page, setPage] = useState(1);
+  const pageSize = 6;
+  const { getAllCourses } = useApi();
+  const [courses, setCourses] = useState<Course[]>([]);
 
-  // Mock data
-  const COURSES = Array.from({ length: 3 }).map((_, i) => ({
-    id: `course-${i + 1}`,
-    title: "Beginner’s Guide to Design",
-    price: 50,
-    chapters: 13,
-    orders: 254,
-    certificates: 25,
-    reviews: 25,
-    shelf: 500,
-    free: true,
-  }));
+  useEffect(() => {
+    fetchCourses();
+  }, []);
+
+  const fetchCourses = async () => {
+    try {
+      const response = await getAllCourses();
+      setCourses(response.data);
+    } catch (error) {
+      setCourses([]);
+      console.error("Error fetching courses:", error);
+    }
+  };
+  
+  const totalPages = Math.ceil(courses.length / pageSize);
+  const pagedCourses = useMemo(() => {
+    const start = (page - 1) * pageSize;
+    return courses.slice(start, start + pageSize);
+  }, [courses, page]);
 
   return (
     // CHỪA CHỖ CHO SIDEBAR: ml-60 = 15rem (khớp w-60 của Sidebar)
@@ -60,17 +73,22 @@ export default function Dashboard() {
           </button>
         </div>
       </div>
+      <div className="flex items-center justify-between mb-4">
+        <div className="text-sm text-slate-600">
+          {courses.length} {t("results", { ns: "dashboard" })}
+        </div>
+      </div>
 
       {/* Cards grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
-        {COURSES.map((c) => (
+        {pagedCourses.map((c) => (
           <article
-            key={c.id}
+            key={c._id}
             className="border border-slate-200 bg-white rounded-xl shadow-sm hover:shadow-md transition cursor-pointer"
           >
             <div className="p-4">
               <div className="flex items-center justify-between">
-                {c.free && (
+                {true && (
                   <Badge>
                     {t("free", { ns: "adminDashboard", defaultValue: "Free" })}
                   </Badge>
@@ -90,11 +108,11 @@ export default function Dashboard() {
                   label={t("metric.price", { ns: "adminDashboard", defaultValue: "Price" })}
                 />
                 <Metric
-                  value={c.chapters}
+                  value={c.totalChapter}
                   label={t("metric.chapters", { ns: "adminDashboard", defaultValue: "Chapters" })}
                 />
                 <Metric
-                  value={c.orders}
+                  value={c.totalOrder}
                   label={t("metric.orders", { ns: "adminDashboard", defaultValue: "Orders" })}
                 />
               </div>
@@ -102,21 +120,56 @@ export default function Dashboard() {
               {/* row 2 */}
               <div className="mt-4 grid grid-cols-3 gap-4">
                 <Metric
-                  value={c.certificates}
+                  value={c.totalCertificate}
                   label={t("metric.certificates", { ns: "adminDashboard", defaultValue: "Certificates" })}
                 />
                 <Metric
-                  value={c.reviews}
+                  value={c.totalRating}
                   label={t("metric.reviews", { ns: "adminDashboard", defaultValue: "Reviews" })}
                 />
                 <Metric
-                  value={c.shelf}
+                  value={c.totalFavorite}
                   label={t("metric.added_to_shelf", { ns: "adminDashboard", defaultValue: "Added to Shelf" })}
                 />
               </div>
             </div>
           </article>
         ))}
+      </div>
+
+      {/* ---------- Pagination ---------- */}
+      <div className="mt-8 flex justify-center">
+        <nav
+          className="inline-flex items-center rounded-xl border border-slate-200 bg-white shadow-sm divide-x divide-slate-200"
+          aria-label="Pagination"
+        >
+          <button
+            className="px-4 py-2 text-slate-600 disabled:text-slate-300 hover:bg-slate-50 cursor-pointer"
+            onClick={() => setPage(Math.max(1, page - 1))}
+            disabled={page === 1}
+          >
+            ‹
+          </button>
+          {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
+            <button
+              key={p}
+              onClick={() => setPage(p)}
+              className={
+                "px-4 py-2 text-slate-700 hover:bg-slate-50 cursor-pointer " +
+                (p === page ? "bg-slate-700 text-white hover:bg-slate-700" : "")
+              }
+            >
+              {p}
+            </button>
+          ))}
+          <button
+            className="px-4 py-2 text-slate-600 disabled:text-slate-300 hover:bg-slate-50 cursor-pointer"
+            onClick={() => setPage(Math.min(totalPages, page + 1))}
+            disabled={page === totalPages}
+          >
+            ›
+          </button>
+        </nav>
       </div>
     </div>
   );

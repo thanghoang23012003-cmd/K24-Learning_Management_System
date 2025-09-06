@@ -3,24 +3,37 @@ import { useTranslation } from "react-i18next";
 import { useAuth } from '../hooks/useAuth';
 import toast from "react-hot-toast";
 import { useNavigate } from 'react-router-dom';
+import Cookies from "js-cookie";
+import { ACCESS_TOKEN_KEY } from '../store/authSlice';
 
 export default function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const { t } = useTranslation();
-  const { login, error } = useAuth();
- const navigate = useNavigate();
+  const { t, i18n } = useTranslation();
+  const { setLogin } = useAuth();
+  const navigate = useNavigate();
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    try {
+      const res = await fetch(`${import.meta.env.VITE_BE_DOMAIN}/auth/login?lang=${i18n.language}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username: email, password }),
+      });
 
-    login(email, password);
+      if (!res.ok) {
+        throw new Error(await res.json());
+      }
 
-    if (error) {
-      toast.error(t('login_failed', { ns: 'login' }));
-    } else {
+      const data = await res.json();
+
+      Cookies.set(ACCESS_TOKEN_KEY, data.access_token, { expires: 7 }); 
+      setLogin(data.access_token, data.user);
       toast.success(t('login_success', { ns: 'login' }));
-      navigate("/")
+      navigate("/");
+    } catch (err: any) {
+      toast.error(t('login_failed', { ns: 'login' }));
     }
   };
 
@@ -39,13 +52,11 @@ export default function Login() {
 
               </label>
               <input
-                type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder={t('username_or_Email_id', { ns: 'login' })}
                 className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
                 required
-                
               />
             </div>
 

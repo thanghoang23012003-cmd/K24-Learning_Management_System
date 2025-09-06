@@ -1,6 +1,8 @@
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import Footer from "../components/layout/Footer";
+import { useApi } from "../hooks/useAPI";
+import { useNavigate } from "react-router-dom";
 
 /* ---------- Helpers ---------- */
 /** Sao nguyên (không 1/2), luôn làm tròn lên */
@@ -65,38 +67,72 @@ function AccordionSection({
   );
 }
 
+export type Course = {
+  _id: string;
+  title: string;
+  description: string;
+  avgRating: number;
+  totalRating: number;
+  totalChapter: number;
+  totalCertificate: number;
+  totalFavorite: number;
+  totalOrder: number;
+  totalHour: number;
+  price: number;
+};
+
+export type Instructor = {
+  _id: string;
+  name: string;
+  bio: string;
+  position: string;
+  avgRating: number;
+  totalReviews: number;
+};
+
 export default function ListCourses() {
   const { t } = useTranslation();
+  const { getAllCourses, getTrendingCourses, getTopInstructors } = useApi();
+  const [courses, setCourses] = useState<Course[]>([]);
+  const [trendingCourses, setTrendingCourses] = useState<Course[]>([]);
+  const [topInstructors, setTopInstructors] = useState<Instructor[]>([]);
+  const navigate = useNavigate();
 
-  /* ===== MOCK DATA ===== */
-  const COURSES = Array.from({ length: 30 }).map((_, i) => ({
-    id: `c-${i + 1}`,
-    title: "Beginner’s Guide to Design",
-    image: "image/ngoimaytinh.jpg",
-    author: "John Doe",
-    rating: 4.6 - (i % 3) * 0.2,
-    ratingCount: 120 + i * 7,
-    price: 14.99 + (i % 4) * 5,
-  }));
+  useEffect(() => {
+    fetchCourses();
+    fetchTrendingCourses();
+    fetchTopInstructors();
+  }, []);
 
-  const MENTORS = Array.from({ length: 6 }).map((_, i) => ({
-    id: `m-${i + 1}`,
-    name: "John Doe",
-    role: "UX Mentor",
-    avatar: "image/giaovien.png",
-    rating: 4.9,
-    reviews: 300 + i * 10,
-  }));
+  const fetchCourses = async () => {
+    try {
+      const response = await getAllCourses();
+      setCourses(response.data);
+    } catch (error) {
+      setCourses([]);
+      console.error("Error fetching courses:", error);
+    }
+  };
 
-  const FEATURED = Array.from({ length: 6 }).map((_, i) => ({
-    id: `f-${i + 1}`,
-    title: "Beginner’s Guide to Design",
-    image: "image/ngoimaytinh.jpg",
-    author: "John Doe",
-    rating: 4.7,
-    ratingCount: 310 + i * 5,
-    price: 24.99,
-  }));
+  const fetchTrendingCourses = async () => {
+    try {
+      const response = await getTrendingCourses();
+      setTrendingCourses(response.data);
+    } catch (error) {
+      setTrendingCourses([]);
+      console.error("Error fetching trending courses:", error);
+    }
+  };
+
+  const fetchTopInstructors = async () => {
+    try {
+      const response = await getTopInstructors(8);
+      setTopInstructors(response.data);
+    } catch (error) {
+      setTopInstructors([]);
+      console.error("Error fetching top instructors:", error);
+    }
+  };
 
   /* ===== SORT + PAGINATION ===== */
   const [sortBy, setSortBy] = useState<SortBy>("popular");
@@ -104,12 +140,12 @@ export default function ListCourses() {
   const pageSize = 9;
 
   const sortedCourses = useMemo(() => {
-    const arr = [...COURSES];
-    if (sortBy === "price_low") arr.sort((a, b) => a.price - b.price);
-    if (sortBy === "price_high") arr.sort((a, b) => b.price - a.price);
-    if (sortBy === "rating") arr.sort((a, b) => b.rating - a.rating);
+    let arr: Course[] = [...courses];
+    if (sortBy === "price_low") arr = arr.sort((a, b) => a.price - b.price);
+    if (sortBy === "price_high") arr = arr.sort((a, b) => b.price - a.price);
+    if (sortBy === "rating") arr = arr.sort((a, b) => b.avgRating - a.avgRating);
     return arr;
-  }, [sortBy]);
+  }, [sortBy, courses]);
 
   const totalPages = Math.ceil(sortedCourses.length / pageSize);
   const pagedCourses = useMemo(() => {
@@ -296,12 +332,13 @@ export default function ListCourses() {
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
                 {pagedCourses.map((c) => (
                   <div
-                    key={c.id}
+                    key={c._id}
+                    onClick={() => {window.scrollTo(0, 0); navigate(`/courses/${c._id}`)}}
                     className="group border border-slate-200 rounded-xl overflow-hidden bg-white shadow-sm hover:shadow-md transition-shadow cursor-pointer"
                   >
                     <div className="aspect-video overflow-hidden bg-slate-100">
                       <img
-                        src={c.image}
+                        src={`https://picsum.photos/seed/course${c._id}/400/200`}
                         alt={c.title}
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform"
                       />
@@ -310,12 +347,12 @@ export default function ListCourses() {
                       <h3 className="text-slate-900 font-semibold leading-snug line-clamp-2">
                         {c.title}
                       </h3>
-                      <p className="text-sm text-slate-500">{c.author}</p>
+                      <p className="text-sm text-slate-500">{"John Doe"}</p>
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2">
-                          <Stars value={c.rating} />
+                          <Stars value={c.avgRating} />
                           <span className="text-sm text-slate-500">
-                            ({c.ratingCount})
+                            ({c.totalRating})
                           </span>
                         </div>
                         <div className="text-slate-900 font-semibold">
@@ -371,23 +408,23 @@ export default function ListCourses() {
             {t("popular_mentors", { ns: "dashboard" })}
           </h3>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
-            {MENTORS.map((m) => (
+            {topInstructors.map((m) => (
               <div
-                key={m.id}
+                key={m._id}
                 className="border border-slate-200 rounded-xl bg-white p-4 flex items-center gap-4 shadow-sm cursor-pointer"
               >
                 <img
-                  src={m.avatar}
+                  src={`https://picsum.photos/seed/avatar${m._id}/300/300`}
                   alt={m.name}
                   className="w-16 h-16 rounded-lg object-cover bg-slate-100"
                 />
                 <div className="flex-1">
                   <div className="font-medium text-slate-900">{m.name}</div>
-                  <div className="text-sm text-slate-500">{m.role}</div>
+                  <div className="text-sm text-slate-500">{m.position}</div>
                   <div className="mt-1 flex items-center gap-2">
-                    <Stars value={m.rating} />
+                    <Stars value={m.avgRating} />
                     <span className="text-xs text-slate-500">
-                      {m.rating} · {m.reviews} {t("reviews", { ns: "dashboard" })}
+                      {m.avgRating} · {m.totalReviews} {t("reviews", { ns: "dashboard" })}
                     </span>
                   </div>
                 </div>
@@ -402,14 +439,15 @@ export default function ListCourses() {
             {t("featured_courses", { ns: "dashboard" })}
           </h3>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
-            {FEATURED.map((c) => (
+            {trendingCourses.map((c) => (
               <div
-                key={c.id}
+                key={c._id}
+                onClick={() => { window.scrollTo(0, 0); navigate(`/courses/${c._id}`); }}
                 className="group border border-slate-200 rounded-xl overflow-hidden bg-white shadow-sm hover:shadow-md transition-shadow cursor-pointer"
               >
                 <div className="aspect-video overflow-hidden bg-slate-100">
                   <img
-                    src={c.image}
+                    src={`https://picsum.photos/seed/course${c._id}/400/200`}
                     alt={c.title}
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform"
                   />
@@ -418,12 +456,12 @@ export default function ListCourses() {
                   <h4 className="text-slate-900 font-semibold leading-snug line-clamp-2">
                     {c.title}
                   </h4>
-                  <p className="text-sm text-slate-500">{c.author}</p>
+                  <p className="text-sm text-slate-500">{"John Doe"}</p>
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
-                      <Stars value={c.rating} />
+                      <Stars value={c.avgRating} />
                       <span className="text-sm text-slate-500">
-                        ({c.ratingCount})
+                        ({c.totalRating})
                       </span>
                     </div>
                     <div className="text-slate-900 font-semibold">

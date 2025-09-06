@@ -1,11 +1,16 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Link } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import Footer from "../components/layout/Footer";
+import { useApi } from "../hooks/useAPI";
+import { formatDateTime } from "../utils/base.util";
+import type { Course } from "./ListCourses";
+import toast from "react-hot-toast";
+import { useAuth } from "../hooks/useAuth";
 
 /* ===================== Helpers ===================== */
 /** Sao nguyên (không 1/2), luôn làm tròn lên */
-function Stars({ value }: { value: number }) {
+export function Stars({ value }: { value: number }) {
   const stars = Math.round(value); // 4.5 -> 5
   return (
     <span className="text-yellow-500 text-sm select-none">
@@ -75,8 +80,10 @@ function TabsButtons({
 /* Buy Card (có đường kẻ trước phần Share) */
 function BuyCard({
   t,
+  course,
 }: {
   t: ReturnType<typeof useTranslation>["t"];
+  course: Course | null;
 }) {
   return (
     <aside className="h-fit">
@@ -84,7 +91,7 @@ function BuyCard({
         {/* Preview image */}
         <div className="aspect-video bg-slate-100 rounded-xl overflow-hidden mb-4">
           <img
-            src="/public/image/ngoimaytinh.jpg"
+            src={`https://picsum.photos/seed/course${course?._id || "default"}/400/225`}
             alt={t("preview_alt", { ns: "course", defaultValue: "Course Preview" })}
             className="w-full h-full object-cover"
           />
@@ -92,8 +99,8 @@ function BuyCard({
 
         {/* Price row */}
         <div className="flex items-baseline gap-3 mb-4">
-          <div className="text-2xl font-bold text-slate-900">$49.5</div>
-          <div className="text-slate-400 line-through">$99.5</div>
+          <div className="text-2xl font-bold text-slate-900">${course?.price}</div>
+          <div className="text-slate-400 line-through">${course?.price ? (course.price * 2).toFixed(2) : "0.00"}</div>
           <div className="text-emerald-600 font-semibold">
             {t("off_percent", { ns: "course", defaultValue: "50% Off" })}
           </div>
@@ -123,11 +130,11 @@ function BuyCard({
           </div>
           <div className="flex items-center gap-3">
             {[
-              "/public/image/icons/iconfb.png",
-              "/public/image/icons/icongithub.png",
-              "/public/image/icons/icongg.png",
-              "/public/image/icons/icontwitter.png",
-              "/public/image/icons/iconmicrosoft.png",
+              "image/icons/iconfb.png",
+              "image/icons/icongithub.png",
+              "image/icons/icongg.png",
+              "image/icons/icontwitter.png",
+              "image/icons/iconmicrosoft.png",
             ].map((src, i) => (
               <a key={i} href="#" className="inline-block">
                 <img
@@ -160,13 +167,93 @@ function StarRow({ stars, percent }: { stars: number; percent: number }) {
   );
 }
 
+export type CourseReview = {
+  _id: number;
+  userId: { _id: number, firstName: string, lastName: string, avatar: string };
+  courseId: { _id: number, title: string };
+  rating: number;
+  content: string;
+  createdAt: string;
+};
+
 /* ===================== Page ===================== */
 export default function DetailCourse() {
-  // const { id } = useParams<{ id: string }>();
+  const { id } = useParams<{ id: string }>();
   const { t } = useTranslation();
   const [activeTab, setActiveTab] = useState<string>(
     t("tab_description", { ns: "course", defaultValue: "Description" })
   );
+  const [course, setCourse] = useState<Course | null>(null);
+  const [courseReviews, setCourseReviews] = useState<CourseReview[]>([]);
+  const [otherCourses, setOtherCourses] = useState<Course[]>([]);
+  const [countReviewsToShow, setCountReviewsToShow] = useState(3);
+
+  const { isLoggedIn } = useAuth();
+  const { getCourseById, getCourseReviews, getTrendingCoursesByLimit, createReview } = useApi();
+
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (id) {
+      fetchCourse(id);
+      fetchCourseReviews(id);
+      fetchOtherCourses();
+    }
+  }, [id]);
+
+  const handleShowMoreReviews = () => {
+    setCountReviewsToShow((prev) => prev + 3);
+  };
+
+  const handleShowLessReviews = () => {
+    setCountReviewsToShow(3);
+  };
+
+  const handleSubmitReview = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setUserRating(0);
+    setUserText("");
+
+    if (!id) return;
+
+    try {
+      await createReview(id, userRating, userText);
+      await fetchCourseReviews(id);
+      toast.success(t("review_submitted", { ns: "course" }));
+    } catch (error) {
+      toast.error(t("review_submit_failed", { ns: "course" }));
+    }
+  };
+
+  const fetchCourse = async (id: string) => {
+    try {
+      const response = await getCourseById(id);
+      setCourse(response.data);
+    } catch (error) {
+      setCourse(null);
+      console.error("Error fetching course:", error);
+    }
+  };
+
+  const fetchCourseReviews = async (id: string) => {
+    try {
+      const response = await getCourseReviews(id);
+      setCourseReviews(response.data);
+    } catch (error) {
+      setCourseReviews([]);
+      console.error("Error fetching course reviews:", error);
+    }
+  };
+
+  const fetchOtherCourses = async () => {
+    try {
+      const response = await getTrendingCoursesByLimit(4);
+      setOtherCourses(response.data);
+    } catch (error) {
+      setOtherCourses([]);
+      console.error("Error fetching other courses:", error);
+    }
+  };
 
   /* ---------- breadcrumb title (dùng id nếu có) ---------- */
   // const courseTitle = id || t("default_course_title", { ns: "course", defaultValue: "Introduction to User Experience Design" });
@@ -179,42 +266,42 @@ export default function DetailCourse() {
           "Byway's tech courses are top-notch! As someone who's always looking to stay ahead in the rapidly evolving tech world, I appreciate the up-to-date content and engaging multimedia.",
         name: "Jane Doe",
         role: "Designer",
-        avatar: "/public/image/avatar1.jpg",
+        avatar: "image/avatar1.jpg",
       },
       {
         quote:
           "The instructors are fantastic. The lessons are practical and immediately applicable to my work.",
         name: "John Smith",
         role: "Developer",
-        avatar: "/public/image/avatar2.jpg",
+        avatar: "image/avatar2.jpg",
       },
       {
         quote:
           "Clear, concise, and engaging. I gained skills that boosted my confidence in leading projects.",
         name: "Emily Johnson",
         role: "Product Manager",
-        avatar: "/public/image/avatar3.jpg",
+        avatar: "image/avatar3.jpg",
       },
       {
         quote:
           "The real-world examples were exactly what I needed to understand difficult concepts.",
         name: "Michael Brown",
         role: "UX Researcher",
-        avatar: "/public/image/avatar1.jpg",
+        avatar: "image/avatar1.jpg",
       },
       {
         quote:
           "Loved the course structure! It’s simple to follow and well organized.",
         name: "Sophia Lee",
         role: "Marketing Specialist",
-        avatar: "/public/image/avatar2.jpg",
+        avatar: "image/avatar2.jpg",
       },
       {
         quote:
           "Great content and smooth delivery. Highly recommended for beginners and intermediates.",
         name: "David Kim",
         role: "Engineer",
-        avatar: "/public/image/avatar3.jpg",
+        avatar: "image/avatar3.jpg",
       },
     ],
     []
@@ -252,7 +339,7 @@ export default function DetailCourse() {
           </Link>
           <span>›</span>
           <span className="text-slate-900 font-medium">
-            {t("breadcrumb_course", { ns: "course", defaultValue: "Introduction to User Experience Design" })}
+            {course?.title}
           </span>
         </nav>
         {/* <nav className="text-sm text-slate-600 flex items-center gap-2">
@@ -268,23 +355,24 @@ export default function DetailCourse() {
           {/* Left: title + info */}
           <div className="lg:col-span-2 space-y-4">
             <h1 className="text-2xl md:text-3xl font-bold text-slate-900">
-              {t("default_course_title", { ns: "course", defaultValue: "Introduction to User Experience Design" })}
+              {course?.title}
             </h1>
 
             {/* Khối rating */}
             <div className="flex items-center flex-wrap text-sm">
               <RatingInline
-                value={4.6}
+                value={course?.avgRating || 0}
                 textAfter={t("rating_count_fmt", {
                   ns: "course",
-                  defaultValue: "(3,240 ratings)",
+                  count: course?.totalRating || 0,
                 })}
               />
               <span className="mx-3 text-slate-300">|</span>
               <span className="text-slate-600">
                 {t("course_meta", {
                   ns: "course",
-                  defaultValue: "22 Total Hours, 155 Lectures, All levels",
+                  totalLectures: course?.totalChapter || 0,
+                  totalHour: course?.totalHour || 0,
                 })}
               </span>
             </div>
@@ -296,7 +384,7 @@ export default function DetailCourse() {
           </div>
 
           {/* Right: Buy Card */}
-          <BuyCard t={t} />
+          <BuyCard t={t} course={course} />
         </div>
 
         {/* ========== 2) Tabs dạng button + Content ========== */}
@@ -309,18 +397,14 @@ export default function DetailCourse() {
               t("tab_certification", { ns: "course", defaultValue: "Certification" }),
               t("tab_instructor", { ns: "course", defaultValue: "Instructor" }),
               t("tab_syllabus", { ns: "course", defaultValue: "Syllabus" }),
-              t("tab_reviews", { ns: "course", defaultValue: "Reviews" }),
+              ...(isLoggedIn ? [t("tab_reviews", { ns: "course", defaultValue: "Reviews" })] : [])
             ]}
           />
 
           <div className="mt-6">
             {activeTab === t("tab_description", { ns: "course", defaultValue: "Description" }) && (
               <p className="text-slate-700 leading-relaxed">
-                {t("desc_text", {
-                  ns: "course",
-                  defaultValue:
-                    "This course introduces the core principles of UX design, including research, information architecture, wireframing, prototyping, and usability testing. You’ll learn by doing with practical exercises and examples.",
-                })}
+                {course?.description}
               </p>
             )}
 
@@ -337,7 +421,7 @@ export default function DetailCourse() {
             {activeTab === t("tab_instructor", { ns: "course", defaultValue: "Instructor" }) && (
               <div className="flex items-start gap-4">
                 <img
-                  src="/public/image/giaovien.png"
+                  src="image/giaovien.png"
                   alt={t("instructor_alt", { ns: "course", defaultValue: "Instructor" })}
                   className="w-16 h-16 rounded-full"
                 />
@@ -464,11 +548,7 @@ export default function DetailCourse() {
                 <button
                   type="button"
                   className="px-4 py-2 rounded-lg bg-slate-900 text-white hover:bg-slate-800 transition cursor-pointer"
-                  onClick={() => {
-                    // mock submit
-                    setUserRating(0);
-                    setUserText("");
-                  }}
+                  onClick={handleSubmitReview}
                 >
                   {t("submit_review", { ns: "course", defaultValue: "Submit Review" })}
                 </button>
@@ -488,11 +568,11 @@ export default function DetailCourse() {
             <div className="lg:col-span-3">
               <div className="space-y-2">
                 <div className="flex items-center gap-2">
-                  <span className="text-xl font-semibold text-slate-900">4.6</span>
-                  <Stars value={4.6} />
+                  <span className="text-xl font-semibold text-slate-900">{course?.avgRating || 0}</span>
+                  <Stars value={course?.avgRating || 0} />
                 </div>
                 <div className="text-sm text-slate-500">
-                  {t("reviews_total_fmt", { ns: "course", defaultValue: "146,951 reviews" })}
+                  {t("reviews_total_fmt", { ns: "course", count: course?.totalRating || 0 })}
                 </div>
               </div>
 
@@ -508,39 +588,36 @@ export default function DetailCourse() {
             {/* RIGHT REVIEWS LIST */}
             <div className="lg:col-span-9">
               <div className="space-y-6">
-                {[1, 2, 3].map((i) => (
+                {courseReviews.slice(0, countReviewsToShow).map((review) => (
                   <div
-                    key={i}
+                    key={review._id}
                     className="border border-slate-200 rounded-xl bg-white p-5 shadow-sm"
                   >
                     <div className="flex items-start gap-4">
                       <img
-                        src="/public/image/avatar1.jpg"
+                        src={`https://picsum.photos/seed/instructor${review.userId._id}/300/300`}
                         alt="user"
                         className="w-12 h-12 rounded-full"
                       />
                       <div className="flex-1">
                         <div className="flex items-center gap-3">
                           <div className="font-medium text-slate-900">
-                            Mark Doe
+                            {review.userId.firstName} {review.userId.lastName}
                           </div>
                           <div className="flex items-center gap-2 text-sm text-slate-500">
-                            <span className="text-yellow-500">★</span>
-                            <span>5</span>
+                            <span>
+                              {Stars({ value: review.rating })}
+                            </span>
                             <span>
                               {t("reviewed_on", {
                                 ns: "course",
-                                defaultValue: "· Reviewed on 22nd March, 2024",
+                                date: formatDateTime(review.createdAt),
                               })}
                             </span>
                           </div>
                         </div>
                         <p className="mt-2 text-slate-700 leading-relaxed text-sm">
-                          {t("sample_review_text", {
-                            ns: "course",
-                            defaultValue:
-                              "I was initially apprehensive, having no prior design experience. But the instructor, John Doe, did an amazing job of breaking down complex concepts into easily digestible modules. The video lectures were engaging, and the real-world examples really helped solidify my understanding.",
-                          })}
+                          {review.content}
                         </p>
                       </div>
                     </div>
@@ -548,13 +625,24 @@ export default function DetailCourse() {
                 ))}
               </div>
 
-              <div className="mt-6">
+              <div className="flex mt-6">
                 <button
                   type="button"
+                  onClick={handleShowMoreReviews}
                   className="px-5 py-2 rounded-lg border border-slate-300 text-slate-700 bg-white hover:bg-slate-50 cursor-pointer"
                 >
                   {t("view_more_reviews", { ns: "course", defaultValue: "View more Reviews" })}
                 </button>
+
+                {countReviewsToShow > 3 && (
+                  <button
+                    type="button"
+                    onClick={handleShowLessReviews}
+                    className="ml-2 px-5 py-2 rounded-lg border border-slate-300 text-slate-700 bg-white hover:bg-slate-50 cursor-pointer"
+                  >
+                    {t("show_less_reviews", { ns: "course", defaultValue: "Show less Reviews" })}
+                  </button>
+                )}
               </div>
             </div>
           </div>
@@ -661,27 +749,28 @@ export default function DetailCourse() {
               {t("more_like_this", { ns: "course", defaultValue: "More Courses Like This" })}
             </h3>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-              {[1, 2, 3, 4].map((i) => (
+              {otherCourses.map((otherCourse) => (
                 <div
-                  key={i}
+                  key={otherCourse._id}
+                  onClick={() => { window.scrollTo(0, 0); navigate(`/courses/${otherCourse._id}`); }}
                   className="group border border-slate-200 rounded-lg bg-white shadow-sm hover:shadow-md transition cursor-pointer"
                 >
                   <div className="aspect-video bg-slate-100 overflow-hidden">
                     <img
-                      src="/public/image/ngoimaytinh.jpg"
+                      src={`https://picsum.photos/seed/course${otherCourse._id}/400/300`}
                       alt={t("course_card_alt", { ns: "course", defaultValue: "course" })}
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform"
                     />
                   </div>
                   <div className="p-3">
                     <h4 className="font-medium text-slate-900 text-sm">
-                      {t("sample_course_title", { ns: "course", defaultValue: "Beginner’s Guide to Design" })}
+                      {otherCourse.title}
                     </h4>
                     <p className="text-xs text-slate-500">John Doe</p>
                     <div className="flex justify-between items-center mt-2">
-                      <Stars value={5} />
+                      <Stars value={otherCourse.avgRating} /> 
                       <span className="text-slate-900 font-semibold text-sm">
-                        $19.99
+                        ${otherCourse.price}
                       </span>
                     </div>
                   </div>
