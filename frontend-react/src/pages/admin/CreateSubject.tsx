@@ -55,16 +55,6 @@ const Textarea = (p: React.TextareaHTMLAttributes<HTMLTextAreaElement>) => (
   />
 );
 
-const Select = (p: React.SelectHTMLAttributes<HTMLSelectElement>) => (
-  <select
-    {...p}
-    className={
-      "w-full h-11 rounded-lg border border-slate-300 bg-white px-3 text-sm text-slate-900 shadow-sm focus:outline-none focus:ring-2 focus:ring-slate-300 " +
-      (p.className || "")
-    }
-  />
-);
-
 function Dropzone({ hint }: { hint?: string }) {
   return (
     <div className="flex h-40 items-center justify-center rounded-lg border border-dashed border-slate-300 bg-white text-sm text-slate-600">
