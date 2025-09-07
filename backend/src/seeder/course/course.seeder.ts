@@ -1,4 +1,6 @@
-export const fakeCourses = async (count: number) => {
+import { UserDocument } from 'src/users/users.schema';
+
+export const fakeCourses = async (users: UserDocument[], count: number) => {
     const { faker } = await import('@faker-js/faker');
     
     const topics = [
@@ -38,6 +40,10 @@ export const fakeCourses = async (count: number) => {
         courses.push({
             title: `${faker.helpers.arrayElement(prefixes)} ${faker.helpers.arrayElement(topics)}`,                  // trả về string có 3 từ
             description: faker.lorem.sentences(3),        // trả về string có 3 câu
+            status: 'public',
+            level: faker.helpers.arrayElement(['all_level', 'beginner', 'intermediate', 'advanced']),
+            showLanguage: faker.helpers.arrayElement(['english', 'vietnamese', 'spanish']),
+            userId: faker.helpers.arrayElement(users)._id,
             avgRating,
             totalRating,
             totalChapter,

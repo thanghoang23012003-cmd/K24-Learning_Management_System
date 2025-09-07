@@ -1,15 +1,15 @@
-import { FileInterceptor, FilesInterceptor, AnyFilesInterceptor } from '@nestjs/platform-express';
+import { FileInterceptor, FilesInterceptor, AnyFilesInterceptor, FileFieldsInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
 import { extname } from 'path';
 
 interface FileUploadOptions {
-  fieldName?: string;           // tên field, optional nếu AnyFilesInterceptor
+  fieldName?: string | string[];   // cho phép string hoặc array
   destination?: string;
   maxSizeMB?: number;
   allowedMimeTypes?: RegExp;
   multiple?: boolean;
   maxCount?: number;
-  optional?: boolean;           // nếu true, file không bắt buộc
+  optional?: boolean;
 }
 
 export function FileUploadInterceptor(options: FileUploadOptions) {
@@ -17,7 +17,7 @@ export function FileUploadInterceptor(options: FileUploadOptions) {
     fieldName,
     destination = './uploads',
     maxSizeMB = 5,
-    allowedMimeTypes = /\/(jpg|jpeg|png)$/,
+    allowedMimeTypes = /\/(jpg|jpeg|png|mp4|avi|mkv)$/,
     multiple = false,
     maxCount = 10,
     optional = true,
@@ -39,11 +39,22 @@ export function FileUploadInterceptor(options: FileUploadOptions) {
     callback(null, true);
   };
 
+  // Nếu optional và không có fieldName → nhận tất cả file
   if (optional && !fieldName) {
-    // nếu file optional, không xác định fieldName → parse tất cả file
     return AnyFilesInterceptor();
   }
 
+  // Nếu fieldName là mảng → dùng FileFieldsInterceptor
+  if (Array.isArray(fieldName)) {
+    const fields = fieldName.map((name) => ({ name, maxCount: multiple ? maxCount : 1 }));
+    return FileFieldsInterceptor(fields, {
+      storage,
+      limits: { fileSize: maxSizeMB * 1024 * 1024 },
+      fileFilter,
+    });
+  }
+
+  // Nếu upload nhiều file cùng tên field
   return multiple
     ? FilesInterceptor(fieldName, maxCount, { storage, limits: { fileSize: maxSizeMB * 1024 * 1024 }, fileFilter })
     : FileInterceptor(fieldName, { storage, limits: { fileSize: maxSizeMB * 1024 * 1024 }, fileFilter });

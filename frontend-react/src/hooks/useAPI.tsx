@@ -31,8 +31,32 @@ export const useApi = () => {
     return api.get('/courses/all');
   };
 
+  const getListPublishedCourses = () => {
+    return api.get('/courses/published');
+  };
+
   const getCourseById = (id: string) => {
     return api.get(`/courses/${id}`);
+  };
+
+  const createCourse = (formData: FormData) => {
+    return api.post('/courses/create', formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
+  }
+
+  const updateCourse = (id: string, formData: FormData) => {
+    return api.patch(`/courses/${id}`, formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
+  };
+
+  const deleteCourse = (id: string) => {
+    return api.delete(`/courses/${id}`);
   };
 
   const getTrendingCourses = () => {
@@ -57,14 +81,18 @@ export const useApi = () => {
 
   const createReview = (courseId: string, rating: number, content: string) => {
     return api.post(`/reviews/course/${courseId}`, { rating, content });
-  }
+  };
 
   return { 
     api, 
     updateProfile, 
     getProfile, 
     getAllCourses, 
+    getListPublishedCourses,
     getCourseById,
+    createCourse,
+    updateCourse,
+    deleteCourse,
     getTrendingCourses,
     getTrendingCoursesByLimit,
     getTopInstructors,

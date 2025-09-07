@@ -1,5 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Document } from 'mongoose';
+import mongoose, { Document } from 'mongoose';
+import { User } from '../users/users.schema';
 
 export type CourseDocument = Course & Document;
 
@@ -34,6 +35,24 @@ export class Course {
 
   @Prop({ default: 100 })
   price: number;
+
+  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'User' , required: true })
+  userId: User;
+
+  @Prop()
+  level: string;
+
+  @Prop()
+  introVideo: string;
+
+  @Prop()
+  introImage: string;
+
+  @Prop()
+  showLanguage: string;
+
+  @Prop({ default: 'draft' })
+  status: string;
 
   @Prop({ default: Date.now })
   createdAt: Date;

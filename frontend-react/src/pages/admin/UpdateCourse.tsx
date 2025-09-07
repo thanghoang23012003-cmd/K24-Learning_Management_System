@@ -1,8 +1,9 @@
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { useApi } from "../../hooks/useAPI";
 import toast from "react-hot-toast";
+import { beFileUrl, urlToFile } from "../../utils/base.util";
 
 /* ---- Reusable inputs ---- */
 const Label = ({ children }: { children: React.ReactNode }) => (
@@ -194,17 +195,23 @@ type CourseForm = {
   totalOrder: number;
   totalHour: number;
   price: number;
-  status: 'draft' | 'public';
   level: string;
   showLanguage: string;
   introVideo?: File | null;
   introImage?: File | null;
 };
 /* ========================================================= */
-export default function CreateCourse() {
+export default function UpdateCourse() {
+  const { id } = useParams<{ id: string }>();
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const { createCourse } = useApi();
+  const { updateCourse, getCourseById } = useApi();
+
+  useEffect(() => {
+    if (!id) return;
+    
+    fetchCourseById(id);
+  }, [id]);
 
   const [formData, setFormData] = useState<CourseForm>({
     title: '',
@@ -219,10 +226,38 @@ export default function CreateCourse() {
     totalFavorite: 0,
     totalOrder: 0,
     totalHour: 0,
-    status: 'draft',
     introVideo: null,
     introImage: null,
   });
+
+  const fetchCourseById = async (courseId: string) => {
+    try {
+      const response = await getCourseById(courseId);
+      const course = response.data;
+      const introVideoFile = course?.introVideo ? await urlToFile(beFileUrl(course?.introVideo)) : null;
+      const introImageFile = course?.introImage ? await urlToFile(beFileUrl(course?.introImage)) : null;
+
+      setFormData({
+        title: course.title || '',
+        description: course.description || '',
+        price: course.price || 0,
+        showLanguage: course.showLanguage || '',
+        level: course.level || '',
+        avgRating: course.avgRating || 0,
+        totalRating: course.totalRating || 0,
+        totalChapter: course.totalChapter || 0,
+        totalCertificate: course.totalCertificate || 0,
+        totalFavorite: course.totalFavorite || 0,
+        totalOrder: course.totalOrder || 0,
+        totalHour: course.totalHour || 0,
+        introVideo: introVideoFile,
+        introImage: introImageFile,
+      });
+    } catch (error) {
+      console.error("Failed to fetch course:", error);
+    }
+  };
+  
 
   const updateForm = <K extends keyof CourseForm>(key: K, value: CourseForm[K]) => {
     setFormData((prev) => ({
@@ -259,7 +294,9 @@ export default function CreateCourse() {
     setFormData(prev => ({ ...prev, introImage: file }));
   };
 
-  const handleSubmit = async (status: 'draft' | 'public') => {
+  const handleSubmit = async (status?: 'draft' | 'public') => {
+    if (!id) return;
+
     const draftCourse: CourseForm = {
       title: formData.title,
       description: formData.description,
@@ -274,7 +311,7 @@ export default function CreateCourse() {
       totalHour: formData.totalHour,
       level: formData.level,
       price: formData.price,
-      status: status,
+      ...(status ? { status } : {}),
       showLanguage: formData.showLanguage,
     };
 
@@ -288,17 +325,18 @@ export default function CreateCourse() {
     }
 
     try {
-      await createCourse(formPayload);
+      await updateCourse(id, formPayload);
       navigate("/admin/dashboard");
-      toast.success(t("create_success", { ns: "createcourse" }));
+      toast.success(t("update_success", { ns: "createcourse" }));
     } catch (error) {
-      toast.error(t("create_error", { ns: "createcourse" }));
+      toast.error(t("update_error", { ns: "createcourse" }));
     }
   };
 
   /* Only 2 top tabs: Chapters + Detail */
   const topTabs = [
     t("tab_detail", { ns: "createcourse", defaultValue: "Detail" }),
+    t("tab_chapters", { ns: "createcourse", defaultValue: "Chapters" }),
   ];
   const [activeTop, setActiveTop] = useState<string>(topTabs[0]);
 
@@ -377,11 +415,11 @@ export default function CreateCourse() {
               {t("cancel", { ns: "createcourse" })}
             </button>
 
-            <button onClick={() => handleSubmit('draft')} className="h-9 px-4 rounded-lg bg-emerald-600 text-white text-sm font-medium hover:bg-emerald-500 cursor-pointer">
-              {t("status_draft", { ns: "createcourse", defaultValue: "Save" })}
+            <button onClick={() => handleSubmit()} className="h-9 px-4 rounded-lg bg-emerald-600 text-white text-sm font-medium hover:bg-emerald-500 cursor-pointer">
+              {t("actions.save", { ns: "createcourse" })}
             </button>
             <button onClick={() => handleSubmit('public')} className="h-9 px-4 rounded-lg bg-blue-600 text-white text-sm font-medium hover:bg-blue-500 cursor-pointer">
-              {t("actions.publish", { ns: "createcourse", defaultValue: "Publish" })}
+              {t("actions.publish", { ns: "createcourse" })}
             </button>
           </div>
         </div>
@@ -494,7 +532,7 @@ export default function CreateCourse() {
                     <div className="text-xs text-slate-500 mb-1">
                       {t("field.course_name", { ns: "createcourse", defaultValue: "Course Name" })}
                     </div>
-                    <Input onChange={(e) => updateForm("title", e.target.value)} defaultValue="" placeholder={t("field.course_name", { ns: "createcourse" })} />
+                    <Input onChange={(e) => updateForm("title", e.target.value)} value={formData.title} placeholder={t("field.course_name", { ns: "createcourse" })} />
                   </div>
 
                   <div>
@@ -530,9 +568,10 @@ export default function CreateCourse() {
                     <>
                       <Textarea
                         onChange={(e) => updateForm("description", e.target.value)}
+                        value={formData.description}
                         rows={12}
                         placeholder={t("desc_placeholder", {
-                          ns: "createcourse",   
+                          ns: "createcourse",
                           defaultValue: "Write your description…",
                         })}
                       />
@@ -561,7 +600,7 @@ export default function CreateCourse() {
                   <div className="grid grid-cols-1 gap-4">
                     <div>
                       <Label>{t("field.course_price", { ns: "createcourse", defaultValue: "Course Price" })}</Label>
-                      <Input type="number" onChange={(e) => updateForm("price", Number(e.target.value))} defaultValue={0} />
+                      <Input type="number" onChange={(e) => updateForm("price", Number(e.target.value))} value={formData.price} />
                     </div>
 
                     {/* Language dropdown via button */}
@@ -601,7 +640,7 @@ export default function CreateCourse() {
                     {/* Total hours */}
                     <div>
                       <Label>{t("field.total_hours", { ns: "createcourse", defaultValue: "Total Hours" })}</Label>
-                      <Input type="number" onChange={(e) => updateForm("totalHour", Number(e.target.value))} defaultValue={0} />
+                      <Input type="number" onChange={(e) => updateForm("totalHour", Number(e.target.value))} value={formData.totalHour} />
                     </div>
 
                     {/* Level dropdown via button */}

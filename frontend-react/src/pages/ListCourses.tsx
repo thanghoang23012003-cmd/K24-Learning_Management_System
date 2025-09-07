@@ -45,6 +45,12 @@ export type Course = {
   totalOrder: number;
   totalHour: number;
   price: number;
+  level: string;
+  introVideo: string;
+  introImage: string;
+  showLanguage: string;
+  status: string;
+  createdAt: string;
 };
 
 export type Instructor = {
@@ -91,7 +97,7 @@ export default function ListCourses() {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const location = useLocation();
-  const { getAllCourses, getTrendingCourses, getTopInstructors } = useApi();
+  const { getListPublishedCourses, getTrendingCourses, getTopInstructors } = useApi();
 
   const [courses, setCourses] = useState<Course[]>([]);
   const [trendingCourses, setTrendingCourses] = useState<Course[]>([]);
@@ -101,7 +107,7 @@ export default function ListCourses() {
   useEffect(() => {
     (async () => {
       try {
-        const r = await getAllCourses();
+        const r = await getListPublishedCourses();
         setCourses(r.data);
       } catch {
         setCourses([]);

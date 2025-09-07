@@ -1,36 +1,33 @@
-import React, { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useApi } from "../../hooks/useAPI";
 import type { Course } from "../ListCourses";
-
-/* ---- small UI helpers ---- */
-function Badge({ children }: { children: React.ReactNode }) {
-  return (
-    <span className="px-2 py-0.5 text-xs rounded-md bg-slate-100 text-slate-700 border border-slate-200">
-      {children}
-    </span>
-  );
-}
-
-function Metric({ value, label }: { value: string | number; label: string }) {
-  return (
-    <div className="flex flex-col">
-      <span className="font-semibold text-slate-900">{value}</span>
-      <span className="text-xs text-slate-500">{label}</span>
-    </div>
-  );
-}
+import { useNavigate } from "react-router-dom";
+import { AdminCourseCard } from "../../components/admin/AdminCourseCard";
 
 export default function Dashboard() {
   const { t } = useTranslation();
   const [page, setPage] = useState(1);
   const pageSize = 6;
-  const { getAllCourses } = useApi();
+  const { getAllCourses, deleteCourse } = useApi();
   const [courses, setCourses] = useState<Course[]>([]);
+  const navigate = useNavigate();
+  const [deleteCourseId, setDeleteCourseId] = useState<string | null>(null);
 
   useEffect(() => {
     fetchCourses();
   }, []);
+
+  const handleDeleteCourse = async () => {
+    if (!deleteCourseId) return;
+    try {
+      await deleteCourse(deleteCourseId);
+      setDeleteCourseId(null);
+      fetchCourses();
+    } catch (error) {
+      console.error("Error deleting course:", error);
+    }
+  };
 
   const fetchCourses = async () => {
     try {
@@ -60,6 +57,7 @@ export default function Dashboard() {
         <div className="flex items-center gap-3">
           <button
             type="button"
+            onClick={() => navigate("/admin/course/create")}
             className="px-4 py-2 rounded-lg bg-slate-900 text-white hover:bg-slate-800 transition cursor-pointer"
           >
             {t("add_course", { ns: "adminDashboard", defaultValue: "Add Course" })}
@@ -82,58 +80,7 @@ export default function Dashboard() {
       {/* Cards grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
         {pagedCourses.map((c) => (
-          <article
-            key={c._id}
-            className="border border-slate-200 bg-white rounded-xl shadow-sm hover:shadow-md transition cursor-pointer"
-          >
-            <div className="p-4">
-              <div className="flex items-center justify-between">
-                {true && (
-                  <Badge>
-                    {t("free", { ns: "adminDashboard", defaultValue: "Free" })}
-                  </Badge>
-                )}
-              </div>
-
-              <h3 className="mt-3 font-semibold text-slate-900">
-                {c.title}
-              </h3>
-
-              <div className="mt-4 h-px bg-slate-200" />
-
-              {/* row 1 */}
-              <div className="mt-4 grid grid-cols-3 gap-4">
-                <Metric
-                  value={`$${c.price.toFixed(2)}`}
-                  label={t("metric.price", { ns: "adminDashboard", defaultValue: "Price" })}
-                />
-                <Metric
-                  value={c.totalChapter}
-                  label={t("metric.chapters", { ns: "adminDashboard", defaultValue: "Chapters" })}
-                />
-                <Metric
-                  value={c.totalOrder}
-                  label={t("metric.orders", { ns: "adminDashboard", defaultValue: "Orders" })}
-                />
-              </div>
-
-              {/* row 2 */}
-              <div className="mt-4 grid grid-cols-3 gap-4">
-                <Metric
-                  value={c.totalCertificate}
-                  label={t("metric.certificates", { ns: "adminDashboard", defaultValue: "Certificates" })}
-                />
-                <Metric
-                  value={c.totalRating}
-                  label={t("metric.reviews", { ns: "adminDashboard", defaultValue: "Reviews" })}
-                />
-                <Metric
-                  value={c.totalFavorite}
-                  label={t("metric.added_to_shelf", { ns: "adminDashboard", defaultValue: "Added to Shelf" })}
-                />
-              </div>
-            </div>
-          </article>
+          <AdminCourseCard key={c._id} course={c} onDelete={(id) => setDeleteCourseId(id)} />
         ))}
       </div>
 
@@ -171,6 +118,36 @@ export default function Dashboard() {
           </button>
         </nav>
       </div>
+
+      {/* Modal confirm delete */}
+      {deleteCourseId && (
+        <div className="fixed inset-0 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 w-80 border border-2">
+            <h2 className="text-lg font-semibold mb-4">
+              {t("confirm_delete_title", { ns: "adminDashboard" })}
+            </h2>
+            <p className="mb-6">
+              {t("confirm_delete_message", { ns: "adminDashboard" })}
+            </p>
+            <div className="flex justify-end">
+              <button
+                type="button"
+                onClick={() => setDeleteCourseId(null)}
+                className="px-4 py-2 rounded-lg bg-slate-200 hover:bg-slate-300 transition cursor-pointer"
+              >
+                {t("cancel", { ns: "adminDashboard" })}
+              </button>
+              <button
+                type="button"
+                onClick={handleDeleteCourse}
+                className="px-4 py-2 rounded-lg bg-red-600 text-white hover:bg-red-500 transition ml-2 cursor-pointer"
+              >
+                {t("confirm", { ns: "adminDashboard" })}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

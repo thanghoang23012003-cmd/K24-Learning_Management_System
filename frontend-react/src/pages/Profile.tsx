@@ -473,7 +473,7 @@ export default function Profile() {
           <aside className="w-72 bg-white border-r shadow-sm p-6">
             <div className="flex flex-col items-center mb-8">
               {renderAvatar()}
-              <p className="font-semibold text-lg">John Doe</p>
+              <p className="font-semibold text-lg">{formData?.username || "N/A"} </p>
               <button className="mt-2 text-blue-600 text-sm">{t('shareProfile')}</button>
             </div>
 

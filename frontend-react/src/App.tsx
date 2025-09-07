@@ -12,6 +12,7 @@ import SignUp from "./pages/SignUp";
 import Profile from "./pages/Profile";
 import Homepage from "./pages/Homepage";
 import { Toaster } from "react-hot-toast";
+import UpdateCourse from "./pages/admin/UpdateCourse";
 
 export default function App() {
   return (
@@ -32,6 +33,7 @@ export default function App() {
           <Route element={<Sidebar />}>
             <Route path="/admin/dashboard" element={<Dashboard />} />
             <Route path="/admin/course/create" element={<CreateCourse />} />
+            <Route path="/admin/course/:id/edit" element={<UpdateCourse />} />
             <Route path="/admin/course/:id/subject/create" element={<CreateSubject />} />
           </Route>
         </Routes>

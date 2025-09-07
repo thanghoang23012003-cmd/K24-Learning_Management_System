@@ -2,7 +2,8 @@
 import { CourseDocument } from './course.schema';
 
 export class CourseSerializer {
-    private static PERMIT = ['_id', 'title', 'description', 'avgRating', 'totalRating', 'totalChapter', 'totalCertificate', 'totalFavorite', 'totalHour', 'totalOrder', 'price', 'createdAt'];
+    private static PERMIT = ['_id', 'title', 'description', 'avgRating', 'totalRating', 'totalChapter', 'userId', 'status',
+        'totalCertificate', 'totalFavorite', 'totalHour', 'totalOrder', 'price', 'createdAt', 'introVideo', 'introImage', 'showLanguage', 'level'];
     private static CONVERT_STRING = ['_id'];
 
     static fromCourse(course: CourseDocument) {
