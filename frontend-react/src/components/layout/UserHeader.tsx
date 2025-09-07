@@ -46,7 +46,7 @@ export default function UserHeader() {
       navigate(q ? `/courses?search=${encodeURIComponent(q)}` : "/courses", { replace: true });
     }, 300);
     return () => clearTimeout(id);
-  }, [searchText, navigate]);
+  }, [searchText]);
 
   const handleLogout = () => {
     logout();
