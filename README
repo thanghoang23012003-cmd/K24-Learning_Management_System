@@ -17,3 +17,10 @@
 4. Chọn create pull request và submit
 5. Liên hệ B để merge pull
 {t("title", {ns: 'homepage'})}
+docker exec -it <container_id> sh" rồi chạy "npm run seed:all"
+- Thêm màn hình học khoá học - FE + BE
+- Thêm màn hình tạo nội dung học - FE + BE (nội dung text, pdf, video, ...)
+- Thêm màn hình CRUD Bài test - FE + BE
+- Thêm màn hình làm bài test (role user) - FE + BE
+
+- Xử lý tiếp các logic thêm vào giỏ hàng, mua khoá học
