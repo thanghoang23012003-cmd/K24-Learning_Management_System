@@ -4,11 +4,20 @@
         "search": "Tìm kiếm khóa học",
         "teach": "Giảng dạy trên ByWay",
         "login": "Đăng nhập",
-        "sign_up": "Đăng ký"
+        "sign_up": "Đăng ký",
+        "en": "Tiếng Anh",
+        "vi": "Tiếng Việt"
     },
     "sidebar": {
         "dashboard": "Bảng điều khiển",
         "courses": "Khóa học",
         "settings": "Cài đặt"
+    },
+    "account": {
+        "profile": "Hồ sơ",
+        "manager_courses": "Quản lý khóa học",
+        "settings": "Cài đặt",
+        "logout": "Đăng xuất",
+        "logout_success": "Đăng xuất thành công"
     }
 }

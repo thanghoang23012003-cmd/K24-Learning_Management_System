@@ -1,0 +1,26 @@
+# Hướng dẫn commit và push code
+1. git add .
+2. git commit -m 'messages gi do'
+3. git push my-origin <ten-nhanh>
+
+# Hướng dẫn lấy code về, sau khi pull đã merge
+# Phải dứng ở nhánh khác master
+1. git branch -D master
+2. git fetch origin master:master
+3. git checkout master
+4. git checkout -b <ten-nhanh-moi>
+
+# Hướng dẫn tạo pull request
+1. Truy cập https://github.com/thanghoang23012003-cmd/K24-Learning_Management_System
+2. Click vào pull request chọn new pull request
+3. Giữ nguyên phần base, ở phần compare thì chọn nhánh muốn merge vào master
+4. Chọn create pull request và submit
+5. Liên hệ B để merge pull
+{t("title", {ns: 'homepage'})}
+docker exec -it <container_id> sh" rồi chạy "npm run seed:all"
+- Thêm màn hình học khoá học - FE + BE
+- Thêm màn hình tạo nội dung học - FE + BE (nội dung text, pdf, video, ...)
+- Thêm màn hình CRUD Bài test - FE + BE
+- Thêm màn hình làm bài test (role user) - FE + BE
+
+- Xử lý tiếp các logic thêm vào giỏ hàng, mua khoá học

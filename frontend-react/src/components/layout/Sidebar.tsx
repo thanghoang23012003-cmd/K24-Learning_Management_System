@@ -1,8 +1,9 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useState } from 'react';
-import { Outlet } from 'react-router-dom';
+import { Outlet, useNavigate } from 'react-router-dom';
 import { faArrowLeft, faBars } from "@fortawesome/free-solid-svg-icons";
 import { useTranslation } from 'react-i18next';
+import { useAuth } from '../../hooks/useAuth';
 
 interface SidebarProps {
   isExpanded?: boolean;
@@ -12,14 +13,18 @@ interface SidebarProps {
 export default function Sidebar({ isExpanded = true, onToggle }: SidebarProps) {
   const [activeItem, setActiveItem] = useState('courses');
   const { t } = useTranslation();
+  const navigate = useNavigate();
+  console.log(isExpanded, activeItem);
+
+  const { user } = useAuth();
 
   const menuItems = [
-    {
-      id: 'dashboard',
-      label: t('sidebar.dashboard', { ns: 'layout' }),
-      icon: <DashboardIcon />,
-      isActive: false,
-    },
+    // {
+    //   id: 'dashboard',
+    //   label: t('sidebar.dashboard', { ns: 'layout' }),
+    //   icon: <DashboardIcon />,
+    //   isActive: false,
+    // },
     {
       id: 'courses',
       label: t('sidebar.courses', { ns: 'layout' }),
@@ -35,7 +40,7 @@ export default function Sidebar({ isExpanded = true, onToggle }: SidebarProps) {
   ];
 
   return (
-    <>
+    <div className="flex h-screen">
       {/* Section */}
       <section 
         className="flex h-full w-60 bg-gray-800 flex-col justify-center items-start sidebar-shadow absolute left-0 top-0" 
@@ -50,8 +55,8 @@ export default function Sidebar({ isExpanded = true, onToggle }: SidebarProps) {
           >
             <div className="flex justify-between items-center self-stretch relative">
               <div className="flex items-center relative" style={{ gap: '5px' }}>
-                <div className="ml-4 flex w-40 flex-shrink-0 items-center cursor-pointer">
-                  <img src="/public/logos/logo.png" alt="Byway Logo" className="h-8 w-8 mr-2" />
+                <div onClick={() => navigate('/')} className="ml-4 flex w-40 flex-shrink-0 items-center cursor-pointer">
+                  <img src="logos/logo.png" alt="Byway Logo" className="h-8 w-8 mr-2" />
                   <span className="text-white font-medium text-base">Byway</span>
                 </div>
               </div>
@@ -99,19 +104,15 @@ export default function Sidebar({ isExpanded = true, onToggle }: SidebarProps) {
         >
           <div className="flex justify-between items-center self-stretch relative">
             <div className="flex items-center relative">
-              <div 
-                className="relative w-10 h-10 border-2 border-radius-100 border-white mr-3"
-                style={{
-                  width: '40px',
-                  height: '40px',
-                  borderRadius: '100px',
-                  background: 'linear-gradient(45deg, #F59E0B, #EF4444)',
-                }}
-              ></div>
+              <div
+                className="mr-2 w-9 h-9 rounded-full bg-slate-700 flex items-center justify-center text-white font-medium cursor-pointer"
+              >
+                {user?.username?.charAt(0)?.toUpperCase()}
+              </div>
               <div 
                 className="relative font-medium text-white"
               >
-                Hi, John
+                Hi, {user?.username}!
               </div>
             </div>
             <button className="p-0 mr-10 bg-transparent border-none cursor-pointer">
@@ -122,40 +123,21 @@ export default function Sidebar({ isExpanded = true, onToggle }: SidebarProps) {
       </section>
 
       {/* Main Content */}
-      <main className="p-4">
+      <main className="p-4 overflow-y-auto w-full">
         <Outlet />
       </main>
-    </>
-  );
-}
-
-// Icon Components
-function DashboardIcon() {
-  return (
-    <img src="/image/icons/dashboard.svg" alt="Dashboard Icon" />
+    </div>
   );
 }
 
 function CoursesIcon() {
   return (
-    <img src="/image/icons/course.svg" alt="Courses Icon" />
-  );
-}
-
-function CommunicationIcon() {
-  return (
-    <img src="/image/icons/communication.svg" alt="Communication Icon" />
-  );
-}
-
-function RevenueIcon() {
-  return (
-    <img src="/image/icons/revenue.svg" alt="Revenue Icon" />
+    <img src="image/icons/course.svg" alt="Courses Icon" />
   );
 }
 
 function SettingIcon() {
   return (
-    <img src="/image/icons/setting.svg" alt="Setting Icon" />
+    <img src="image/icons/setting.svg" alt="Setting Icon" />
   );
 }

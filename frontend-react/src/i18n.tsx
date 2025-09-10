@@ -10,10 +10,11 @@ i18n
     interpolation: {
       escapeValue: false // react already safes from xss
     },
+    fallbackLng: false,
     backend: {
-      loadPath: "/locales/{{lng}}/{{ns}}.json"
+      loadPath: `${import.meta.env.VITE_APP_BASE ? import.meta.env.VITE_APP_BASE : ''}locales/{{lng}}/{{ns}}.json`
     },
-    ns: ["translation", "dashboard", "login", "adminDashboard", "layout", "course"],
+    ns: ["translation", "dashboard", "homepage", "login", "profile", "adminDashboard", "layout", "course", "subject", "sign_up", "createcourse"],
   });
 
 export default i18n;

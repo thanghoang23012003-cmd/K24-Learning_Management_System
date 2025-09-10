@@ -3,11 +3,14 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
+  "homepage": "https://ahsin2k.github.io/K24-Learning_Management_System",
   "scripts": {
     "dev": "vite --host 0.0.0.0 --port 5000",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "predeploy": "npm run build",
+    "deploy": "gh-pages -d dist"
   },
   "dependencies": {
     "@fortawesome/fontawesome-svg-core": "^7.0.0",
@@ -15,16 +18,24 @@
     "@fortawesome/react-fontawesome": "^3.0.0",
     "@heroicons/react": "^2.2.0",
     "@material-tailwind/react": "^2.1.10",
+    "@reduxjs/toolkit": "^2.9.0",
     "@tailwindcss/vite": "^4.1.12",
+    "axios": "^1.11.0",
     "i18next": "^25.4.1",
     "i18next-http-backend": "^3.0.2",
+    "js-cookie": "^3.0.5",
+    "jwt-decode": "^4.0.0",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
+    "react-hot-toast": "^2.6.0",
     "react-i18next": "^15.7.2",
+    "react-redux": "^9.2.0",
     "react-router-dom": "^7.8.0"
   },
   "devDependencies": {
     "@eslint/js": "^9.33.0",
+    "@types/js-cookie": "^3.0.6",
+    "@types/node": "^24.3.0",
     "@types/react": "^19.1.10",
     "@types/react-dom": "^19.1.7",
     "@vitejs/plugin-react": "^5.0.0",
@@ -32,6 +43,7 @@
     "eslint": "^9.33.0",
     "eslint-plugin-react-hooks": "^5.2.0",
     "eslint-plugin-react-refresh": "^0.4.20",
+    "gh-pages": "^6.3.0",
     "globals": "^16.3.0",
     "tailwind": "^4.0.0",
     "tailwindcss": "^4.1.12",
