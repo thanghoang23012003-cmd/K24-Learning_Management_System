@@ -1,5 +1,6 @@
 {
   "required": "{propertyTranslated} is required",
   "unique": "{propertyTranslated} must be unique",
-  "invalid": "{propertyTranslated} is invalid"
+  "invalid": "{propertyTranslated} is invalid",
+  "COURSE_ALREADY_IN_CART": "Course already in cart"
 }

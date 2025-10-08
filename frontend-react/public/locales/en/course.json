@@ -11,6 +11,9 @@
   "off_percent": "50% Off",
   "add_to_cart": "Add To Cart",
   "buy_now": "Buy Now",
+  "course_added_to_cart": "Course added to cart!",
+  "failed_to_add_course": "Failed to add course to cart.",
+  "course_already_in_cart": "Course is already in your cart.",
   "share": "Share",
 
   "tab_description": "Description",

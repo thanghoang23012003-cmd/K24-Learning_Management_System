@@ -11,6 +11,9 @@
   "off_percent": "Giảm 50%",
   "add_to_cart": "Thêm vào giỏ",
   "buy_now": "Mua ngay",
+  "course_added_to_cart": "Đã thêm khóa học vào giỏ hàng!",
+  "failed_to_add_course": "Thêm khóa học vào giỏ hàng thất bại.",
+  "course_already_in_cart": "Khóa học đã có trong giỏ hàng của bạn.",
   "share": "Chia sẻ",
 
   "tab_description": "Mô tả",

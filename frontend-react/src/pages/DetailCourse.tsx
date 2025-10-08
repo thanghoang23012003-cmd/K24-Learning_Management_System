@@ -98,7 +98,11 @@ function BuyCard({
           toast.success(t("course_added_to_cart", { ns: "course" }));
         })
         .catch((error) => {
-          toast.error(error || t("failed_to_add_course", { ns: "course" }));
+          if (error === 'COURSE_ALREADY_IN_CART') {
+            toast.error(t("course_already_in_cart", { ns: "course" }));
+          } else {
+            toast.error(error || t("failed_to_add_course", { ns: "course" }));
+          }
         });
     }
   };
