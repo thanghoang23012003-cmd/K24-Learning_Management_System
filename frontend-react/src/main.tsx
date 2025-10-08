@@ -5,6 +5,9 @@ import './i18n';
 import App from './App.tsx'
 import { Provider } from 'react-redux';
 import { store } from './store/index.tsx';
+import { injectStore } from './utils/api';
+
+injectStore(store);
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>

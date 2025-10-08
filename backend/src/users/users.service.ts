@@ -9,13 +9,27 @@ import { ProfileDto } from './dto/profile.dto';
 export class UsersService {
   constructor(@InjectModel(User.name) private userModel: Model<UserDocument>) {}
 
-  async findByUsernameOrEmail(keyword: string): Promise<UserDocument > {
-    return this.userModel.findOne({ $or: [{ username: keyword }, { email: keyword }] }).exec();
+  async findByUsernameOrEmail(keyword: string): Promise<UserDocument> {
+    return this.userModel
+      .findOne({ $or: [{ username: keyword }, { email: keyword }] })
+      .exec();
   }
 
-  async create(username: string, password: string, email: string, firstName: string, lastName: string): Promise<User> {
+  async create(
+    username: string,
+    password: string,
+    email: string,
+    firstName: string,
+    lastName: string,
+  ): Promise<User> {
     const hashedPassword = await bcrypt.hash(password, 10);
-    const newUser = new this.userModel({ username, password: hashedPassword, email, firstName, lastName });
+    const newUser = new this.userModel({
+      username,
+      password: hashedPassword,
+      email,
+      firstName,
+      lastName,
+    });
     return newUser.save();
   }
 
@@ -24,6 +38,8 @@ export class UsersService {
   }
 
   async update(userId: string, updateData: ProfileDto): Promise<UserDocument> {
-    return this.userModel.findByIdAndUpdate(userId, updateData, { new: true }).exec();
+    return this.userModel
+      .findByIdAndUpdate(userId, updateData, { new: true })
+      .exec();
   }
 }

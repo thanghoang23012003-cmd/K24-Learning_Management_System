@@ -3,7 +3,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import Cookies from "js-cookie";
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Outlet, useNavigate } from "react-router-dom";
+import { Outlet, useNavigate, Link, useLocation } from "react-router-dom";
 import toast from "react-hot-toast";
 import { useAuth } from "../../hooks/useAuth";
 
@@ -15,6 +15,7 @@ import { useAuth } from "../../hooks/useAuth";
 export default function UserHeader() {
   const { t, i18n } = useTranslation();
   const navigate = useNavigate();
+  const location = useLocation();
   const { isLoggedIn, user, logout } = useAuth();
 
   const [isUserOpen, setIsUserOpen] = useState(false);
@@ -41,12 +42,15 @@ export default function UserHeader() {
 
   // LIVE SEARCH: điều hướng kèm query ?search=
   useEffect(() => {
+    // Chỉ chạy khi đang ở trang /courses
+    if (location.pathname !== '/courses') return;
+
     const id = setTimeout(() => {
       const q = searchText.trim();
       navigate(q ? `/courses?search=${encodeURIComponent(q)}` : "/courses", { replace: true });
     }, 300);
     return () => clearTimeout(id);
-  }, [searchText]);
+  }, [searchText, navigate, location.pathname]);
 
   const handleLogout = () => {
     logout();
@@ -108,7 +112,9 @@ export default function UserHeader() {
             {isLoggedIn ? (
               <>
                 <FontAwesomeIcon icon={faHeart} className="w-6 h-6 text-slate-700 cursor-pointer" />
-                <FontAwesomeIcon icon={faCartShopping} className="w-6 h-6 text-slate-700 cursor-pointer" />
+                <Link to="/cart">
+                  <FontAwesomeIcon icon={faCartShopping} className="w-6 h-6 text-slate-700 cursor-pointer" />
+                </Link>
                 <FontAwesomeIcon icon={faBell} className="w-6 h-6 text-slate-700 cursor-pointer" />
 
                 {/* Avatar + dropdown */}
@@ -153,7 +159,9 @@ export default function UserHeader() {
               </>
             ) : (
               <>
-                <FontAwesomeIcon icon={faCartShopping} className="w-6 h-6 text-slate-700 ml-20 mr-5 cursor-pointer" />
+                <Link to="/cart">
+                  <FontAwesomeIcon icon={faCartShopping} className="w-6 h-6 text-slate-700 ml-20 mr-5 cursor-pointer" />
+                </Link>
                 <div className="flex items-center gap-3">
                   <button
                     onClick={() => navigate("/login")}

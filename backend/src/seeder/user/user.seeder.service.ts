@@ -14,8 +14,8 @@ export class UserSeederService {
 
   async run() {
     const users = [...(await fakeAdmin()), ...(await fakeUsers(20))]; // tạo 20 user + 1 admin
-    
-    await this.reviewModel.collection.drop().catch(err => {
+
+    await this.reviewModel.collection.drop().catch((err) => {
       if (err.code === 26) {
         console.log('Collection reviews không tồn tại, bỏ qua.');
       } else {
@@ -23,7 +23,7 @@ export class UserSeederService {
       }
     });
 
-    await this.userModel.collection.drop().catch(err => {
+    await this.userModel.collection.drop().catch((err) => {
       if (err.code === 26) {
         console.log('Collection users không tồn tại, bỏ qua.');
       } else {

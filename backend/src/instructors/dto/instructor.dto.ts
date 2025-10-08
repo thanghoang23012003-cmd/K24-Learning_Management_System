@@ -1,5 +1,3 @@
 import { IsEmpty, IsOptional, IsString } from 'class-validator';
 
-export class InstructorDto {
-  
-}
+export class InstructorDto {}

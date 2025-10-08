@@ -21,7 +21,7 @@ async function bootstrap() {
       transform: true,
     }),
   );
-  
+
   app.useGlobalFilters(
     new CustomI18nValidationExceptionFilter(app.get(I18nService)),
   );

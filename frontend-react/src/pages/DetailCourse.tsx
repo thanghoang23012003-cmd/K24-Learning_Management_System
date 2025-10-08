@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useCallback } from "react";
 import { useTranslation } from "react-i18next";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import Footer from "../components/layout/Footer";
@@ -7,6 +7,9 @@ import { formatDateTime } from "../utils/base.util";
 import type { Course } from "./ListCourses";
 import toast from "react-hot-toast";
 import { useAuth } from "../hooks/useAuth";
+import { useDispatch } from "react-redux";
+import type { AppDispatch } from "../store";
+import { addCourseToCart } from "../store/cartSlice";
 
 /* ===================== Helpers ===================== */
 /** Sao nguyên (không 1/2), luôn làm tròn lên */
@@ -85,6 +88,21 @@ function BuyCard({
   t: ReturnType<typeof useTranslation>["t"];
   course: Course | null;
 }) {
+  const dispatch = useDispatch<AppDispatch>();
+
+  const handleAddToCart = () => {
+    if (course) {
+      dispatch(addCourseToCart(course._id))
+        .unwrap()
+        .then(() => {
+          toast.success(t("course_added_to_cart", { ns: "course" }));
+        })
+        .catch((error) => {
+          toast.error(error || t("failed_to_add_course", { ns: "course" }));
+        });
+    }
+  };
+
   return (
     <aside className="h-fit">
       <div className="border border-slate-200 rounded-2xl bg-white shadow-md p-5 w-full">
@@ -108,6 +126,7 @@ function BuyCard({
 
         {/* Buttons */}
         <button
+          onClick={handleAddToCart}
           className="w-full py-3 rounded-lg bg-slate-900 text-white font-medium hover:bg-slate-800 transition cursor-pointer"
           type="button"
         >
@@ -193,13 +212,40 @@ export default function DetailCourse() {
 
   const navigate = useNavigate();
 
+  const fetchCourse = useCallback(async (id: string) => {
+    try {
+      const response = await getCourseById(id);
+      setCourse(response.data);
+    } catch {
+      setCourse(null);
+    }
+  }, [getCourseById]);
+
+  const fetchCourseReviews = useCallback(async (id: string) => {
+    try {
+      const response = await getCourseReviews(id);
+      setCourseReviews(response.data);
+    } catch {
+      setCourseReviews([]);
+    }
+  }, [getCourseReviews]);
+
+  const fetchOtherCourses = useCallback(async () => {
+    try {
+      const response = await getTrendingCoursesByLimit(4);
+      setOtherCourses(response.data);
+    } catch {
+      setOtherCourses([]);
+    }
+  }, [getTrendingCoursesByLimit]);
+
   useEffect(() => {
     if (id) {
       fetchCourse(id);
       fetchCourseReviews(id);
       fetchOtherCourses();
     }
-  }, [id]);
+  }, [id, fetchCourse, fetchCourseReviews, fetchOtherCourses]);
 
   const handleShowMoreReviews = () => {
     setCountReviewsToShow((prev) => prev + 3);
@@ -224,37 +270,7 @@ export default function DetailCourse() {
       toast.error(t("review_submit_failed", { ns: "course" }));
     }
   };
-
-  const fetchCourse = async (id: string) => {
-    try {
-      const response = await getCourseById(id);
-      setCourse(response.data);
-    } catch (error) {
-      setCourse(null);
-      console.error("Error fetching course:", error);
-    }
-  };
-
-  const fetchCourseReviews = async (id: string) => {
-    try {
-      const response = await getCourseReviews(id);
-      setCourseReviews(response.data);
-    } catch (error) {
-      setCourseReviews([]);
-      console.error("Error fetching course reviews:", error);
-    }
-  };
-
-  const fetchOtherCourses = async () => {
-    try {
-      const response = await getTrendingCoursesByLimit(4);
-      setOtherCourses(response.data);
-    } catch (error) {
-      setOtherCourses([]);
-      console.error("Error fetching other courses:", error);
-    }
-  };
-
+  
   /* ---------- breadcrumb title (dùng id nếu có) ---------- */
   // const courseTitle = id || t("default_course_title", { ns: "course", defaultValue: "Introduction to User Experience Design" });
 

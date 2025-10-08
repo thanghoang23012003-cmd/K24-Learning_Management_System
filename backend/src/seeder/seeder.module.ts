@@ -12,17 +12,17 @@ import { Review, ReviewSchema } from '../reviews/review.schema';
 @Module({
   imports: [
     MongooseModule.forFeature([
-      { name: Course.name, schema: CourseSchema }, 
+      { name: Course.name, schema: CourseSchema },
       { name: Instructor.name, schema: InstructorSchema },
       { name: User.name, schema: UserSchema },
-      { name: Review.name, schema: ReviewSchema }
+      { name: Review.name, schema: ReviewSchema },
     ]),
     MongooseModule.forRootAsync({
-        imports: [ConfigModule],
-        useFactory: (configService: ConfigService) => ({
+      imports: [ConfigModule],
+      useFactory: (configService: ConfigService) => ({
         uri: configService.get<string>('MONGO_URI'),
-        }),
-        inject: [ConfigService],
+      }),
+      inject: [ConfigService],
     }),
   ],
   providers: [CourseSeederService, InstructorSeederService, UserSeederService],

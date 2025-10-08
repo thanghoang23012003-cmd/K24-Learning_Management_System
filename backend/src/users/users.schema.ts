@@ -1,6 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Exclude, Transform } from 'class-transformer';
-import { Document } from 'mongoose';
+import { Document, Schema as MongooseSchema } from 'mongoose';
+import { Course } from '../courses/course.schema';
 
 export type UserDocument = User & Document;
 
@@ -24,10 +25,10 @@ export class User {
 
   @Prop({ required: true })
   lastName: string;
-  
+
   @Prop()
   description: string;
-  
+
   @Prop({ default: 'user' })
   role: string;
 
@@ -36,7 +37,7 @@ export class User {
 
   @Prop()
   linkedIn: string;
-  
+
   @Prop()
   youtube: string;
 
@@ -45,6 +46,12 @@ export class User {
 
   @Prop()
   avatar: string;
+
+  @Prop({
+    type: [{ type: MongooseSchema.Types.ObjectId, ref: 'Course' }],
+    default: [],
+  })
+  courses: Course[];
 
   isAdmin(): boolean {
     return this.role === 'admin';

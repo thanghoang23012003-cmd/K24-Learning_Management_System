@@ -12,33 +12,27 @@ import { join } from 'path';
 import { CourseModule } from './courses/course.module';
 import { InstructorModule } from './instructors/instructor.module';
 import { ReviewModule } from './reviews/review.module';
+import { CartModule } from './cart/cart.module';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
     }),
-    MongooseModule.forRootAsync({
-      imports: [ConfigModule],
-      useFactory: (configService: ConfigService) => ({
-        uri: configService.get<string>('MONGO_URI'),
-      }),
-      inject: [ConfigService],
-    }),
+    MongooseModule.forRoot(process.env.MONGO_URI),
     I18nModule.forRoot({
       fallbackLanguage: 'en',
       loaderOptions: {
         path: path.join(__dirname, '/i18n/'),
         watch: true,
       },
-      resolvers: [
-        { use: QueryResolver, options: ['lang'] },
-      ],
+      resolvers: [{ use: QueryResolver, options: ['lang'] }],
     }),
     AuthModule,
     CourseModule,
     InstructorModule,
     ReviewModule,
+    CartModule,
     ServeStaticModule.forRoot({
       rootPath: join(__dirname, '..', 'uploads'),
       serveRoot: '/uploads', // client truy cập http://localhost:3000/uploads/filename.jpg
@@ -47,5 +41,4 @@ import { ReviewModule } from './reviews/review.module';
   controllers: [AppController],
   providers: [AppService, CustomI18nValidationExceptionFilter],
 })
-
 export class AppModule {}

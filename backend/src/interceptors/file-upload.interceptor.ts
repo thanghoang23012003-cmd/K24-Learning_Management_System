@@ -1,9 +1,14 @@
-import { FileInterceptor, FilesInterceptor, AnyFilesInterceptor, FileFieldsInterceptor } from '@nestjs/platform-express';
+import {
+  FileInterceptor,
+  FilesInterceptor,
+  AnyFilesInterceptor,
+  FileFieldsInterceptor,
+} from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
 import { extname } from 'path';
 
 interface FileUploadOptions {
-  fieldName?: string | string[];   // cho phép string hoặc array
+  fieldName?: string | string[]; // cho phép string hoặc array
   destination?: string;
   maxSizeMB?: number;
   allowedMimeTypes?: RegExp;
@@ -46,7 +51,10 @@ export function FileUploadInterceptor(options: FileUploadOptions) {
 
   // Nếu fieldName là mảng → dùng FileFieldsInterceptor
   if (Array.isArray(fieldName)) {
-    const fields = fieldName.map((name) => ({ name, maxCount: multiple ? maxCount : 1 }));
+    const fields = fieldName.map((name) => ({
+      name,
+      maxCount: multiple ? maxCount : 1,
+    }));
     return FileFieldsInterceptor(fields, {
       storage,
       limits: { fileSize: maxSizeMB * 1024 * 1024 },
@@ -56,6 +64,14 @@ export function FileUploadInterceptor(options: FileUploadOptions) {
 
   // Nếu upload nhiều file cùng tên field
   return multiple
-    ? FilesInterceptor(fieldName, maxCount, { storage, limits: { fileSize: maxSizeMB * 1024 * 1024 }, fileFilter })
-    : FileInterceptor(fieldName, { storage, limits: { fileSize: maxSizeMB * 1024 * 1024 }, fileFilter });
+    ? FilesInterceptor(fieldName, maxCount, {
+        storage,
+        limits: { fileSize: maxSizeMB * 1024 * 1024 },
+        fileFilter,
+      })
+    : FileInterceptor(fieldName, {
+        storage,
+        limits: { fileSize: maxSizeMB * 1024 * 1024 },
+        fileFilter,
+      });
 }

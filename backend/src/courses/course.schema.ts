@@ -36,7 +36,7 @@ export class Course {
   @Prop({ default: 100 })
   price: number;
 
-  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'User' , required: true })
+  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true })
   userId: User;
 
   @Prop()

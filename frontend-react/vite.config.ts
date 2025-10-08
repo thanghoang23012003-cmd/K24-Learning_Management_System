@@ -11,7 +11,15 @@ export default defineConfig(({ mode }) => {
     base: env.VITE_APP_BASE || '/', // lấy từ .env
     plugins: [react(), tailwindcss()],
     server: {
+      host: '0.0.0.0', // Allow access from outside the container
       port: 5000,
+      proxy: {
+        '/api': {
+          target: 'http://api:3000', // Use the service name from docker-compose
+          changeOrigin: true,
+          rewrite: (path) => path.replace(/^\/api/, ''), // Remove /api prefix
+        },
+      },
     },
   }
 })

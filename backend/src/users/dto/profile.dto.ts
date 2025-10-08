@@ -12,7 +12,7 @@ export class ProfileDto {
   @IsString()
   @IsOptional()
   description: string;
-  
+
   @IsString()
   @IsOptional()
   website: string;
@@ -20,7 +20,7 @@ export class ProfileDto {
   @IsString()
   @IsOptional()
   linkedIn: string;
-  
+
   @IsString()
   @IsOptional()
   youtube: string;
@@ -30,6 +30,6 @@ export class ProfileDto {
   facebook: string;
 
   @IsString()
-  @IsOptional() 
+  @IsOptional()
   avatar: string;
 }
