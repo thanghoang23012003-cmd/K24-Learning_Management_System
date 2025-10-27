@@ -9,6 +9,7 @@ export class ReviewSerializer {
     'rating',
     'createdAt',
     'updatedAt',
+    'replies',
   ];
   private static CONVERT_STRING = ['_id'];
 

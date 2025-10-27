@@ -51,6 +51,7 @@ export type Course = {
   showLanguage: string;
   status: string;
   createdAt: string;
+  ratingStats?: Array<{ _id: number; count: number }>;
 };
 
 export type Instructor = {

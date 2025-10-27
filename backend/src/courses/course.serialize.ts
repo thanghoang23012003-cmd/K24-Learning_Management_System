@@ -21,6 +21,7 @@ export class CourseSerializer {
     'introImage',
     'showLanguage',
     'level',
+    'ratingStats',
   ];
   private static CONVERT_STRING = ['_id'];
 

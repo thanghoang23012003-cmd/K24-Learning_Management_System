@@ -191,13 +191,16 @@ function StarRow({ stars, percent }: { stars: number; percent: number }) {
 }
 
 export type CourseReview = {
-  _id: number;
-  userId: { _id: number, firstName: string, lastName: string, avatar: string };
-  courseId: { _id: number, title: string };
+  _id: string; // Changed to string to match mongoose ObjectId
+  userId: { _id: string; firstName: string; lastName: string; avatar: string };
+  courseId: { _id: string; title: string };
   rating: number;
   content: string;
   createdAt: string;
+  replies?: CourseReview[]; // Added for nested replies
 };
+
+import ReviewItem from "../components/layout/ReviewItem";
 
 /* ===================== Page ===================== */
 export default function DetailCourse() {
@@ -261,15 +264,21 @@ export default function DetailCourse() {
 
   const handleSubmitReview = async (e: React.FormEvent) => {
     e.preventDefault();
-    setUserRating(0);
-    setUserText("");
 
     if (!id) return;
+    if (userRating === 0) {
+      toast.error(t("please_select_rating", { ns: "course", defaultValue: "Please select a rating before submitting." }));
+      return;
+    }
 
     try {
       await createReview(id, userRating, userText);
-      await fetchCourseReviews(id);
       toast.success(t("review_submitted", { ns: "course" }));
+
+      // Reset form and refetch on success
+      setUserRating(0);
+      setUserText("");
+      await Promise.all([fetchCourseReviews(id), fetchCourse(id)]);
     } catch (error) {
       toast.error(t("review_submit_failed", { ns: "course" }));
     }
@@ -597,11 +606,15 @@ export default function DetailCourse() {
               </div>
 
               <div className="mt-5 space-y-3">
-                <StarRow stars={5} percent={80} />
-                <StarRow stars={4} percent={10} />
-                <StarRow stars={3} percent={5} />
-                <StarRow stars={2} percent={3} />
-                <StarRow stars={1} percent={2} />
+                {(() => {
+                  const totalRatedReviews = course?.ratingStats?.reduce((sum, stat) => sum + stat.count, 0) || 0;
+                  return [5, 4, 3, 2, 1].map((stars) => {
+                    const stat = course?.ratingStats?.find((s) => s._id === stars);
+                    const count = stat?.count || 0;
+                    const percent = totalRatedReviews > 0 ? Math.round((count / totalRatedReviews) * 100) : 0;
+                    return <StarRow key={stars} stars={stars} percent={percent} />;
+                  });
+                })()}
               </div>
             </div>
 
@@ -609,39 +622,15 @@ export default function DetailCourse() {
             <div className="lg:col-span-9">
               <div className="space-y-6">
                 {courseReviews.slice(0, countReviewsToShow).map((review) => (
-                  <div
+                  <ReviewItem
                     key={review._id}
-                    className="border border-slate-200 rounded-xl bg-white p-5 shadow-sm"
-                  >
-                    <div className="flex items-start gap-4">
-                      <img
-                        src={`https://picsum.photos/seed/instructor${review.userId._id}/300/300`}
-                        alt="user"
-                        className="w-12 h-12 rounded-full"
-                      />
-                      <div className="flex-1">
-                        <div className="flex items-center gap-3">
-                          <div className="font-medium text-slate-900">
-                            {review.userId.firstName} {review.userId.lastName}
-                          </div>
-                          <div className="flex items-center gap-2 text-sm text-slate-500">
-                            <span>
-                              {Stars({ value: review.rating })}
-                            </span>
-                            <span>
-                              {t("reviewed_on", {
-                                ns: "course",
-                                date: formatDateTime(review.createdAt),
-                              })}
-                            </span>
-                          </div>
-                        </div>
-                        <p className="mt-2 text-slate-700 leading-relaxed text-sm">
-                          {review.content}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
+                    review={review}
+                    courseId={id!}
+                    onReviewSubmitted={() => {
+                      fetchCourseReviews(id!);
+                      fetchCourse(id!);
+                    }}
+                  />
                 ))}
               </div>
 

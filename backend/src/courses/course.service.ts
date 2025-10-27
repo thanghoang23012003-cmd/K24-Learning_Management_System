@@ -1,37 +1,151 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Course, CourseDocument } from './course.schema';
-import { Model } from 'mongoose';
+import { Model, Types } from 'mongoose';
 import { CreateCourseDto } from './dto/create-course.dto';
 import { UpdateCourseDto } from './dto/update-course.dto';
+import { Review } from '../reviews/review.schema';
 
 @Injectable()
 export class CourseService {
   constructor(
     @InjectModel(Course.name) private courseModel: Model<CourseDocument>,
+    @InjectModel(Review.name) private reviewModel: Model<Review>,
   ) {}
 
+  private async _attachRatings(courses: CourseDocument[]): Promise<any[]> {
+    if (courses.length === 0) {
+      return [];
+    }
+
+    const courseIds = courses.map((c) => c._id);
+
+    // 1. Get average ratings from top-level reviews only
+    const avgRatings = await this.reviewModel.aggregate([
+      { $match: { courseId: { $in: courseIds }, parent: null } },
+      {
+        $group: {
+          _id: '$courseId',
+          avgRating: { $avg: '$rating' },
+        },
+      },
+    ]);
+
+    // 2. Get total ratings (reviews + replies)
+    const totalRatings = await this.reviewModel.aggregate([
+      { $match: { courseId: { $in: courseIds } } },
+      {
+        $group: {
+          _id: '$courseId',
+          totalRating: { $sum: 1 },
+        },
+      },
+    ]);
+
+    const avgRatingsMap = new Map(avgRatings.map((s) => [s._id.toString(), s]));
+    const totalRatingsMap = new Map(totalRatings.map((s) => [s._id.toString(), s]));
+
+    return courses.map((course) => {
+      const courseObj = course.toObject ? course.toObject() : course;
+      const courseIdStr = course._id.toString();
+
+      const avgStats = avgRatingsMap.get(courseIdStr);
+      const totalStats = totalRatingsMap.get(courseIdStr);
+
+      courseObj.avgRating = avgStats ? parseFloat((avgStats.avgRating || 0).toFixed(1)) : 0;
+      courseObj.totalRating = totalStats ? totalStats.totalRating || 0 : 0;
+
+      return courseObj;
+    });
+  }
+
   async getListCourse(): Promise<CourseDocument[]> {
-    return this.courseModel.find().sort({ createdAt: -1 }).exec();
+    const courses = await this.courseModel.find().exec();
+    const withRatings = await this._attachRatings(courses);
+    withRatings.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+    return withRatings;
   }
 
   async getListCoursePublished(): Promise<CourseDocument[]> {
-    return this.courseModel
-      .find({ status: 'public' })
-      .sort({ createdAt: -1 })
-      .exec();
+    const courses = await this.courseModel.find({ status: 'public' }).exec();
+    const withRatings = await this._attachRatings(courses);
+    withRatings.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+    return withRatings;
   }
 
   async getTrendingCourses(limit: number): Promise<CourseDocument[]> {
-    return this.courseModel
-      .find({ avgRating: { $gt: 4.5 }, status: 'public' })
-      .sort({ avgRating: -1 })
-      .limit(limit)
-      .exec();
+    const courses = await this.courseModel.aggregate([
+      { $match: { status: 'public' } },
+      {
+        $lookup: {
+          from: 'reviews',
+          localField: '_id',
+          foreignField: 'courseId',
+          as: 'reviews',
+        },
+      },
+      {
+        $addFields: {
+          totalRating: { $size: '$reviews' },
+          avgRating: {
+            $ifNull: [ // Handle courses with no reviews
+              {
+                $avg: {
+                  $map: {
+                    input: {
+                      $filter: {
+                        input: '$reviews',
+                        as: 'review',
+                        cond: { $eq: ['$$review.parent', null] },
+                      },
+                    },
+                    as: 'review',
+                    in: '$$review.rating',
+                  },
+                },
+              },
+              0, // Default avgRating if no top-level reviews
+            ],
+          },
+        },
+      },
+      { $sort: { totalOrder: -1, avgRating: -1 } },
+      { $limit: limit },
+      { $project: { reviews: 0 } }, // Remove the reviews array from final output
+    ]);
+
+    // The aggregation returns plain objects, so we round the avgRating here
+    courses.forEach(course => {
+      course.avgRating = parseFloat((course.avgRating || 0).toFixed(1));
+    });
+
+    return courses;
   }
 
   async findByField(field: string, value: any) {
-    return this.courseModel.findOne({ [field]: value }).exec();
+    const course = await this.courseModel.findOne({ [field]: value }).lean();
+
+    if (field === '_id' && course) {
+      const coursesWithRatings = await this._attachRatings([course as CourseDocument]);
+      const finalCourse = coursesWithRatings[0];
+
+      // Calculate rating breakdown for the detail page chart
+      const ratingStats = await this.reviewModel.aggregate([
+        { $match: { courseId: new Types.ObjectId(value), parent: null } },
+        {
+          $group: {
+            _id: '$rating',
+            count: { $sum: 1 },
+          },
+        },
+        { $sort: { _id: -1 } },
+      ]);
+      finalCourse['ratingStats'] = ratingStats;
+
+      return finalCourse;
+    }
+
+    return course;
   }
 
   async create(courseData: Partial<CreateCourseDto>): Promise<CourseDocument> {

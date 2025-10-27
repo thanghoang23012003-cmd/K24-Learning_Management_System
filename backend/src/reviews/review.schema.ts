@@ -24,6 +24,12 @@ export class Review {
 
   @Prop({ default: Date.now })
   updatedAt: Date;
+
+  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Review' })
+  parent: Review;
+
+  @Prop([{ type: mongoose.Schema.Types.ObjectId, ref: 'Review' }])
+  replies: Review[];
 }
 
 export const ReviewSchema = SchemaFactory.createForClass(Review);

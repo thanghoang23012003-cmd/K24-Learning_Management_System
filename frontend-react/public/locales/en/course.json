@@ -63,5 +63,11 @@
   "more_like_this": "More Courses Like This",
   "course_card_alt": "course",
   "sample_course_title": "Beginner’s Guide to Design",
-  "create_course": "Create Course"
+  "create_course": "Create Course",
+  "reply": "Reply",
+  "write_your_reply": "Write your reply...",
+  "submit_reply": "Submit Reply",
+  "reply_submitted": "Reply submitted!",
+  "reply_submit_failed": "Failed to submit reply.",
+  "please_select_rating": "Please select a rating before submitting."
 }

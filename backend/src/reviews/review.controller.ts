@@ -38,12 +38,13 @@ export class ReviewController {
     @Body() body: ReviewDto,
   ) {
     const userId = req.user._id;
-    const { rating, content } = body;
+    const { rating, content, parentId } = body;
     const newReview = await this.reviewService.createReview(
       userId,
       courseId,
       rating,
       content,
+      parentId,
     );
     return ReviewSerializer.fromReview(newReview);
   }

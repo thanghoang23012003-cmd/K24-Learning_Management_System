@@ -26,10 +26,8 @@ export const fakeCourses = async (users: UserDocument[], count: number) => {
   const courses = [];
 
   for (let i = 0; i < count; i++) {
-    const totalRating = faker.datatype.number({ min: 50, max: 100 }); // số lượt rating
-    const avgRating = parseFloat(
-      faker.datatype.float({ min: 3, max: 5, precision: 0.1 }).toFixed(1), // điểm trung bình 3-5
-    );
+    const avgRating = 0;
+    const totalRating = 0;
     const totalChapter = faker.datatype.number({ min: 5, max: 20 });
     const totalCertificate = faker.datatype.number({ min: 50, max: 500 });
     const totalFavorite = faker.datatype.number({ min: 100, max: 1000 });

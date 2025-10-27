@@ -17,11 +17,23 @@ export class ReviewService {
   }
 
   async getCourseReviews(courseId: string): Promise<ReviewDocument[]> {
+    const populateOptions = {
+      path: 'replies',
+      populate: [
+        { path: 'userId', select: 'firstName lastName avatar' },
+        {
+          path: 'replies',
+          populate: { path: 'userId', select: 'firstName lastName avatar' },
+        },
+      ],
+    };
+
     return this.reviewModel
-      .find({ courseId })
+      .find({ courseId, parent: null })
       .sort({ createdAt: -1 })
       .populate('courseId', 'title')
       .populate('userId', 'firstName lastName avatar')
+      .populate(populateOptions)
       .exec();
   }
 
@@ -34,13 +46,24 @@ export class ReviewService {
     courseId: string,
     rating: number,
     content: string,
+    parentId?: string,
   ): Promise<ReviewDocument> {
     const newReview = new this.reviewModel({
       userId,
       courseId,
       rating,
       content,
+      parent: parentId || null,
     });
-    return newReview.save();
+
+    const savedReview = await newReview.save();
+
+    if (parentId) {
+      await this.reviewModel.findByIdAndUpdate(parentId, {
+        $push: { replies: savedReview._id },
+      });
+    }
+
+    return savedReview;
   }
 }

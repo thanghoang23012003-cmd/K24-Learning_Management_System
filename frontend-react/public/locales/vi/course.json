@@ -63,6 +63,12 @@
   "more_like_this": "Khoá học tương tự",
   "course_card_alt": "khoá học",
   "sample_course_title": "Hướng dẫn Thiết kế cho người mới bắt đầu",
-  "create_course": "Tạo Khóa học"
+  "create_course": "Tạo Khóa học",
+  "reply": "Trả lời",
+  "write_your_reply": "Viết câu trả lời của bạn...",
+  "submit_reply": "Gửi trả lời",
+  "reply_submitted": "Đã gửi trả lời!",
+  "reply_submit_failed": "Gửi trả lời thất bại.",
+  "please_select_rating": "Vui lòng chọn số sao trước khi gửi."
 }
 

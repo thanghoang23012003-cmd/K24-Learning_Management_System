@@ -6,4 +6,8 @@ export class ReviewDto {
 
   @IsNumber()
   rating: number;
+
+  @IsOptional()
+  @IsString()
+  parentId?: string;
 }
