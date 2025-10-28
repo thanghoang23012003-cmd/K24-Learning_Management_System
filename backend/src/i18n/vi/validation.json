@@ -1,5 +1,6 @@
 {
   "required": "{propertyTranslated} là bắt buộc",
   "unique": "{propertyTranslated} phải là duy nhất",
-  "invalid": "{propertyTranslated} không hợp lệ"
+  "invalid": "{propertyTranslated} không hợp lệ",
+  "COURSE_ALREADY_IN_CART": "Khóa học đã có trong giỏ hàng"
 }

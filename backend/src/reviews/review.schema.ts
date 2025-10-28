@@ -13,10 +13,10 @@ export class Review {
   @Prop({ required: true, default: 5 })
   rating: number;
 
-  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'User' , required: true })
+  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true })
   userId: User;
 
-  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Course' , required: true })
+  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Course', required: true })
   courseId: Course;
 
   @Prop({ default: Date.now })
@@ -24,6 +24,12 @@ export class Review {
 
   @Prop({ default: Date.now })
   updatedAt: Date;
+
+  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Review' })
+  parent: Review;
+
+  @Prop([{ type: mongoose.Schema.Types.ObjectId, ref: 'Review' }])
+  replies: Review[];
 }
 
 export const ReviewSchema = SchemaFactory.createForClass(Review);

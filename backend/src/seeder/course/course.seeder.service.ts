@@ -22,7 +22,7 @@ export class CourseSeederService {
     const reviews = await fakeReviews(allCourses, allUsers);
     const courses = await fakeCourses(allUsers, 60); // tạo 60 khóa học
 
-    await this.reviewModel.collection.drop().catch(err => {
+    await this.reviewModel.collection.drop().catch((err) => {
       if (err.code === 26) {
         console.log('Collection reviews không tồn tại, bỏ qua.');
       } else {
@@ -32,8 +32,8 @@ export class CourseSeederService {
 
     await this.reviewModel.deleteMany({});
     await this.reviewModel.insertMany(reviews);
-    
-    await this.courseModel.collection.drop().catch(err => {
+
+    await this.courseModel.collection.drop().catch((err) => {
       if (err.code === 26) {
         console.log('Collection courses không tồn tại, bỏ qua.');
       } else {

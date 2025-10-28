@@ -1,4 +1,10 @@
-import { IsEmail, IsNotEmpty, MinLength, MaxLength, Matches } from 'class-validator';
+import {
+  IsEmail,
+  IsNotEmpty,
+  MinLength,
+  MaxLength,
+  Matches,
+} from 'class-validator';
 import { IsUnique } from '../validators/is-unique.decorator';
 
 export class RegisterDto {

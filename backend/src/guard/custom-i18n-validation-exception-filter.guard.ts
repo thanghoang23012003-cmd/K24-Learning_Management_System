@@ -1,18 +1,11 @@
-import {
-  ArgumentsHost,
-  Catch,
-  ExceptionFilter,
-  Inject,
-} from '@nestjs/common';
+import { ArgumentsHost, Catch, ExceptionFilter, Inject } from '@nestjs/common';
 import { I18nValidationException, I18nService } from 'nestjs-i18n';
 
 @Catch(I18nValidationException)
 export class CustomI18nValidationExceptionFilter
   implements ExceptionFilter<I18nValidationException>
 {
-  constructor(
-    private readonly i18n: I18nService
-  ) {}
+  constructor(private readonly i18n: I18nService) {}
 
   async catch(exception: I18nValidationException, host: ArgumentsHost) {
     const ctx = host.switchToHttp();

@@ -13,7 +13,7 @@ export class InstructorSeederService {
   async run() {
     const instructors = await fakeInstructors(20); // tạo 30 giảng viên
 
-    await this.instructorModel.collection.drop().catch(err => {
+    await this.instructorModel.collection.drop().catch((err) => {
       if (err.code === 26) {
         console.log('Collection instructors không tồn tại, bỏ qua.');
       } else {

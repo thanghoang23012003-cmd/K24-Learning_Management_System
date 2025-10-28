@@ -13,6 +13,7 @@ import Profile from "./pages/Profile";
 import Homepage from "./pages/Homepage";
 import { Toaster } from "react-hot-toast";
 import UpdateCourse from "./pages/admin/UpdateCourse";
+import Cart from "./pages/Cart";
 
 export default function App() {
   return (
@@ -27,6 +28,7 @@ export default function App() {
             <Route path="/login" element={<Login />} />
             <Route path="/sign_up" element={<SignUp />} />
             <Route path="/profile" element={<Profile />} />
+            <Route path="/cart" element={<Cart />} />
           </Route>
 
           {/* Group admin */}

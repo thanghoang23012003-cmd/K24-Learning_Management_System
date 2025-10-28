@@ -79,8 +79,8 @@ export const useApi = () => {
     return api.get(`/reviews/my-reviews`);
   };
 
-  const createReview = (courseId: string, rating: number, content: string) => {
-    return api.post(`/reviews/course/${courseId}`, { rating, content });
+  const createReview = (courseId: string, rating: number, content: string, parentId?: string) => {
+    return api.post(`/reviews/course/${courseId}`, { rating, content, parentId });
   };
 
   return { 

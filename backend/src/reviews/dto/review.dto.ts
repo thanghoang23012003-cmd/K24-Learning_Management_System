@@ -1,9 +1,13 @@
 import { IsEmpty, IsNumber, IsOptional, IsString } from 'class-validator';
 
 export class ReviewDto {
-    @IsString()
-    content: string;
+  @IsString()
+  content: string;
 
-    @IsNumber()
-    rating: number;
+  @IsNumber()
+  rating: number;
+
+  @IsOptional()
+  @IsString()
+  parentId?: string;
 }

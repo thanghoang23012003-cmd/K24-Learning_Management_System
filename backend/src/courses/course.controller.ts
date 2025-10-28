@@ -1,4 +1,18 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post, Query, Request, UploadedFile, UploadedFiles, UseGuards, UseInterceptors } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Patch,
+  Post,
+  Query,
+  Request,
+  UploadedFile,
+  UploadedFiles,
+  UseGuards,
+  UseInterceptors,
+} from '@nestjs/common';
 import { CourseService } from './course.service';
 import { CourseSerializer } from './course.serialize';
 import { JwtAuthGuard } from '../guard/jwt-auth.guard';
@@ -8,27 +22,25 @@ import { UpdateCourseDto } from './dto/update-course.dto';
 
 @Controller('courses')
 export class CourseController {
-  constructor(
-    private courseService: CourseService
-  ) {}
+  constructor(private courseService: CourseService) {}
 
-  @Get('/all')    
+  @Get('/all')
   async getListCourses() {
     const courses = await this.courseService.getListCourse();
-    return courses.map(course => CourseSerializer.fromCourse(course));
+    return courses.map((course) => CourseSerializer.fromCourse(course));
   }
 
   @Get('/published')
   async getListPublishedCourses() {
     const courses = await this.courseService.getListCoursePublished();
-    return courses.map(course => CourseSerializer.fromCourse(course));
+    return courses.map((course) => CourseSerializer.fromCourse(course));
   }
 
   @Get('/trending')
   async getListTrendingCourses(@Query('limit') limit: number) {
     limit = limit || 8;
     const courses = await this.courseService.getTrendingCourses(limit);
-    return courses.map(course => CourseSerializer.fromCourse(course));
+    return courses.map((course) => CourseSerializer.fromCourse(course));
   }
 
   @Get('/:id')
@@ -39,11 +51,21 @@ export class CourseController {
 
   @Post('/create')
   @UseGuards(JwtAuthGuard)
-  @UseInterceptors(FileUploadInterceptor({ fieldName: ['introVideo', 'introImage'], allowedMimeTypes: /\/(mp4|avi|mkv|jpg|jpeg|png)$/, maxSizeMB: 100 }))
+  @UseInterceptors(
+    FileUploadInterceptor({
+      fieldName: ['introVideo', 'introImage'],
+      allowedMimeTypes: /\/(mp4|avi|mkv|jpg|jpeg|png)$/,
+      maxSizeMB: 100,
+    }),
+  )
   async createCourse(
     @Request() req,
     @Body() courseData: CreateCourseDto,
-    @UploadedFiles() files: { introVideo?: Express.Multer.File[]; introImage?: Express.Multer.File[] }
+    @UploadedFiles()
+    files: {
+      introVideo?: Express.Multer.File[];
+      introImage?: Express.Multer.File[];
+    },
   ) {
     courseData.introVideo = files.introVideo?.[0]?.path || '';
     courseData.introImage = files.introImage?.[0]?.path || '';
@@ -62,11 +84,21 @@ export class CourseController {
 
   @Patch('/:id')
   @UseGuards(JwtAuthGuard)
-  @UseInterceptors(FileUploadInterceptor({ fieldName: ['introVideo', 'introImage'], allowedMimeTypes: /\/(mp4|avi|mkv|jpg|jpeg|png)$/, maxSizeMB: 100 }))
+  @UseInterceptors(
+    FileUploadInterceptor({
+      fieldName: ['introVideo', 'introImage'],
+      allowedMimeTypes: /\/(mp4|avi|mkv|jpg|jpeg|png)$/,
+      maxSizeMB: 100,
+    }),
+  )
   async updateCourse(
     @Param('id') id: string,
     @Body() courseData: UpdateCourseDto,
-    @UploadedFiles() files: { introVideo?: Express.Multer.File[]; introImage?: Express.Multer.File[] }
+    @UploadedFiles()
+    files: {
+      introVideo?: Express.Multer.File[];
+      introImage?: Express.Multer.File[];
+    },
   ) {
     courseData.introVideo = files.introVideo?.[0]?.path || '';
     courseData.introImage = files.introImage?.[0]?.path || '';

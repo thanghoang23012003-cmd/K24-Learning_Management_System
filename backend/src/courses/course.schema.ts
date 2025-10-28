@@ -12,7 +12,7 @@ export class Course {
   @Prop()
   description: string;
 
-  @Prop({ default: 5.0 })
+  @Prop({ default: 0 })
   avgRating: number;
 
   @Prop({ default: 0 })
@@ -36,7 +36,7 @@ export class Course {
   @Prop({ default: 100 })
   price: number;
 
-  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'User' , required: true })
+  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true })
   userId: User;
 
   @Prop()
