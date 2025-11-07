@@ -20,9 +20,9 @@ export class CourseService {
 
     const courseIds = courses.map((c) => c._id);
 
-    // 1. Get average ratings from top-level reviews only
+    // 1. Get average ratings from approved, top-level reviews only
     const avgRatings = await this.reviewModel.aggregate([
-      { $match: { courseId: { $in: courseIds }, parent: null } },
+      { $match: { courseId: { $in: courseIds }, parent: null, status: 'approved' } },
       {
         $group: {
           _id: '$courseId',
@@ -31,9 +31,9 @@ export class CourseService {
       },
     ]);
 
-    // 2. Get total ratings (reviews + replies)
+    // 2. Get total ratings from approved reviews (reviews + replies)
     const totalRatings = await this.reviewModel.aggregate([
-      { $match: { courseId: { $in: courseIds } } },
+      { $match: { courseId: { $in: courseIds }, status: 'approved' } },
       {
         $group: {
           _id: '$courseId',
@@ -43,7 +43,9 @@ export class CourseService {
     ]);
 
     const avgRatingsMap = new Map(avgRatings.map((s) => [s._id.toString(), s]));
-    const totalRatingsMap = new Map(totalRatings.map((s) => [s._id.toString(), s]));
+    const totalRatingsMap = new Map(
+      totalRatings.map((s) => [s._id.toString(), s]),
+    );
 
     return courses.map((course) => {
       const courseObj = course.toObject ? course.toObject() : course;
@@ -52,7 +54,9 @@ export class CourseService {
       const avgStats = avgRatingsMap.get(courseIdStr);
       const totalStats = totalRatingsMap.get(courseIdStr);
 
-      courseObj.avgRating = avgStats ? parseFloat((avgStats.avgRating || 0).toFixed(1)) : 0;
+      courseObj.avgRating = avgStats
+        ? parseFloat((avgStats.avgRating || 0).toFixed(1))
+        : 0;
       courseObj.totalRating = totalStats ? totalStats.totalRating || 0 : 0;
 
       return courseObj;
@@ -62,14 +66,20 @@ export class CourseService {
   async getListCourse(): Promise<CourseDocument[]> {
     const courses = await this.courseModel.find().exec();
     const withRatings = await this._attachRatings(courses);
-    withRatings.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+    withRatings.sort(
+      (a, b) =>
+        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
+    );
     return withRatings;
   }
 
   async getListCoursePublished(): Promise<CourseDocument[]> {
     const courses = await this.courseModel.find({ status: 'public' }).exec();
     const withRatings = await this._attachRatings(courses);
-    withRatings.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+    withRatings.sort(
+      (a, b) =>
+        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
+    );
     return withRatings;
   }
 
@@ -79,8 +89,15 @@ export class CourseService {
       {
         $lookup: {
           from: 'reviews',
-          localField: '_id',
-          foreignField: 'courseId',
+          let: { courseId: '$_id' },
+          pipeline: [
+            {
+              $match: {
+                $expr: { $eq: ['$courseId', '$$courseId'] },
+                status: 'approved', // Filter for approved reviews
+              },
+            },
+          ],
           as: 'reviews',
         },
       },
@@ -88,7 +105,8 @@ export class CourseService {
         $addFields: {
           totalRating: { $size: '$reviews' },
           avgRating: {
-            $ifNull: [ // Handle courses with no reviews
+            $ifNull: [
+              // Handle courses with no reviews
               {
                 $avg: {
                   $map: {
@@ -109,13 +127,13 @@ export class CourseService {
           },
         },
       },
-      { $sort: { totalOrder: -1, avgRating: -1 } },
+      { $sort: { totalRating: -1, avgRating: -1 } },
       { $limit: limit },
-      { $project: { reviews: 0 } }, // Remove the reviews array from final output
+      { $project: { reviews: 0 } } // Remove the reviews array from final output
     ]);
 
     // The aggregation returns plain objects, so we round the avgRating here
-    courses.forEach(course => {
+    courses.forEach((course) => {
       course.avgRating = parseFloat((course.avgRating || 0).toFixed(1));
     });
 
@@ -126,12 +144,14 @@ export class CourseService {
     const course = await this.courseModel.findOne({ [field]: value }).lean();
 
     if (field === '_id' && course) {
-      const coursesWithRatings = await this._attachRatings([course as CourseDocument]);
+      const coursesWithRatings = await this._attachRatings([
+        course as CourseDocument,
+      ]);
       const finalCourse = coursesWithRatings[0];
 
       // Calculate rating breakdown for the detail page chart
       const ratingStats = await this.reviewModel.aggregate([
-        { $match: { courseId: new Types.ObjectId(value), parent: null } },
+        { $match: { courseId: new Types.ObjectId(value), parent: null, status: 'approved' } },
         {
           $group: {
             _id: '$rating',

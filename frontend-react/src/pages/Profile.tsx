@@ -358,88 +358,103 @@ export default function Profile() {
         return (
           <div className="p-8 w-full">
             <h2 className="text-2xl font-bold mb-6">{t('myReviews')}</h2>
-            <div className="space-y-6">
-              {pagedReviews.map((review, idx) => (
-                <div key={idx} className="bg-white rounded-2xl shadow p-6 hover:shadow-lg transition">
-                  <p className="font-semibold mb-1">
-                    {t('courseName', { ns: "course" })}: <span onClick={() => {window.scrollTo(0, 0); navigate(`/courses/${review.courseId._id}`)}} className='hover:text-blue-500 cursor-pointer'>{review.courseId.title}</span>
-                  </p>
-                  <p className="text-yellow-500">{Stars({ value: review.rating })}</p>
-                  <p className="text-gray-600 mt-2">{review.content}</p>
-                </div>
-              ))}
-            </div>
+            {pagedReviews.length > 0 ? (
+              <div className="space-y-6">
+                {pagedReviews.map((review, idx) => (
+                  <div key={idx} className="bg-white rounded-2xl shadow p-6 hover:shadow-lg transition">
+                    <div className="flex justify-between items-center mb-2">
+                      <p className="font-semibold mb-1">
+                        {t('courseName', { ns: "course" })}: <span onClick={() => {window.scrollTo(0, 0); navigate(`/courses/${review.courseId._id}`)}} className='hover:text-blue-500 cursor-pointer'>{review.courseId.title}</span>
+                      </p>
+                      <span
+                        className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                          review.status === 'approved'
+                            ? 'bg-green-100 text-green-800'
+                            : review.status === 'rejected'
+                            ? 'bg-red-100 text-red-800'
+                            : 'bg-yellow-100 text-yellow-800'
+                        }`}>
+                        {review.status}
+                      </span>
+                    </div>
+                    <p className="text-yellow-500">{Stars({ value: review.rating })}</p>
+                    <p className="text-gray-600 mt-2">{review.content}</p>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p>No reviews to display.</p>
+            )}
 
             {/* ---------- Pagination ---------- */}
-            <div className="mt-8 flex justify-center">
-              <nav
-                className="inline-flex items-center rounded-xl border border-slate-200 bg-white shadow-sm divide-x divide-slate-200"
-                aria-label="Pagination"
-              >
-                {/* Previous */}
-                <button
-                  className="px-4 py-2 text-slate-600 disabled:text-slate-300 hover:bg-slate-50 cursor-pointer"
-                  onClick={() => setPageReview(Math.max(1, pageReview - 1))}
-                  disabled={pageReview === 1}
+            {totalReviewPages > 1 && (
+              <div className="mt-8 flex justify-center">
+                <nav
+                  className="inline-flex items-center rounded-xl border border-slate-200 bg-white shadow-sm divide-x divide-slate-200"
+                  aria-label="Pagination"
                 >
-                  ‹
-                </button>
+                  {/* Previous */}
+                  <button
+                    className="px-4 py-2 text-slate-600 disabled:text-slate-300 hover:bg-slate-50 cursor-pointer"
+                    onClick={() => setPageReview(Math.max(1, pageReview - 1))}
+                    disabled={pageReview === 1}
+                  >
+                    ‹
+                  </button>
 
-                {(() => {
-                  const pages: (number | string)[] = [];
-                  const start = Math.max(1, pageReview - 2);
-                  const end = Math.min(totalReviewPages, pageReview + 2);
+                  {(() => {
+                    const pages: (number | string)[] = [];
+                    const start = Math.max(1, pageReview - 2);
+                    const end = Math.min(totalReviewPages, pageReview + 2);
 
-                  // Trang đầu
-                  if (start > 1) {
-                    pages.push(1);
-                    if (start > 2) pages.push("...");
-                  }
+                    if (start > 1) {
+                      pages.push(1);
+                      if (start > 2) pages.push("...");
+                    }
 
-                  // Các trang giữa
-                  for (let i = start; i <= end; i++) {
-                    pages.push(i);
-                  }
+                    for (let i = start; i <= end; i++) {
+                      pages.push(i);
+                    }
 
-                  // Trang cuối
-                  if (end < totalReviewPages) {
-                    if (end < totalReviewPages - 1) pages.push("...");
-                    pages.push(totalReviewPages);
-                  }
+                    if (end < totalReviewPages) {
+                      if (end < totalReviewPages - 1) pages.push("...");
+                      pages.push(totalReviewPages);
+                    }
 
-                  return pages.map((p, idx) =>
-                    typeof p === "number" ? (
-                      <button
-                        key={idx}
-                        onClick={() => setPageReview(p)}
-                        className={
-                          "px-4 py-2 text-slate-700 hover:bg-slate-50 cursor-pointer " +
-                          (p === pageReview ? "bg-slate-700 text-white hover:bg-slate-700" : "")
-                        }
-                      >
-                        {p}
-                      </button>
-                    ) : (
-                      <span
-                        key={idx}
-                        className="px-3 py-2 text-slate-400 select-none"
-                      >
-                        {p}
-                      </span>
-                    )
-                  );
-                })()}
+                    return pages.map((p, idx) =>
+                      typeof p === "number" ? (
+                        <button
+                          key={idx}
+                          onClick={() => setPageReview(p)}
+                          className={
+                            "px-4 py-2 text-slate-700 hover:bg-slate-50 cursor-pointer " +
+                            (p === pageReview ? "bg-slate-700 text-white hover:bg-slate-700" : "")
+                          }
+                        >
+                          {p}
+                        </button>
+                      ) : (
+                        <span
+                          key={idx}
+                          className="px-3 py-2 text-slate-400 select-none"
+                        >
+                          {p}
+                        </span>
+                      )
+                    );
+                  })()}
 
-                {/* Next */}
-                <button
-                  className="px-4 py-2 text-slate-600 disabled:text-slate-300 hover:bg-slate-50 cursor-pointer"
-                  onClick={() => setPageReview(Math.min(totalReviewPages, pageReview + 1))}
-                  disabled={pageReview === totalReviewPages}
-                >
-                  ›
-                </button>
-              </nav>
-            </div>
+                  {/* Next */}
+                  <button
+                    className="px-4 py-2 text-slate-600 disabled:text-slate-300 hover:bg-slate-50 cursor-pointer"
+                    onClick={() => setPageReview(Math.min(totalReviewPages, pageReview + 1))}
+                    disabled={pageReview === totalReviewPages}
+                  >
+                    ›
+                  </button>
+                </nav>
+              </div>
+            )}
           </div>
         );
 

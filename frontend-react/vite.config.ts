@@ -15,11 +15,14 @@ export default defineConfig(({ mode }) => {
       port: 5000,
       proxy: {
         '/api': {
-          target: 'http://api:3000', // Use the service name from docker-compose
+          target: 'http://localhost:3000', // Use localhost for local development
           changeOrigin: true,
           rewrite: (path) => path.replace(/^\/api/, ''), // Remove /api prefix
         },
       },
+    },
+    optimizeDeps: {
+      exclude: ['@reduxjs/toolkit'],
     },
   }
 })

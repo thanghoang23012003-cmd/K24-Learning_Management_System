@@ -4,6 +4,7 @@ export class ReviewDto {
   @IsString()
   content: string;
 
+  @IsOptional()
   @IsNumber()
   rating: number;
 

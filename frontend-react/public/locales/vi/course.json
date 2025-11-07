@@ -69,6 +69,10 @@
   "submit_reply": "Gửi trả lời",
   "reply_submitted": "Đã gửi trả lời!",
   "reply_submit_failed": "Gửi trả lời thất bại.",
-  "please_select_rating": "Vui lòng chọn số sao trước khi gửi."
+  "please_select_rating": "Vui lòng chọn số sao trước khi gửi.",
+  "review_pending_approval": "Bình luận của bạn đang chờ xét duyệt",
+  "review_status_pending": "Đang chờ xét duyệt",
+  "review_status_approved": "Đã duyệt",
+  "review_status_rejected": "Đã từ chối"
 }
 

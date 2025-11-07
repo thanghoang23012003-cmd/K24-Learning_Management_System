@@ -13,6 +13,7 @@ import { CourseModule } from './courses/course.module';
 import { InstructorModule } from './instructors/instructor.module';
 import { ReviewModule } from './reviews/review.module';
 import { CartModule } from './cart/cart.module';
+import { HealthModule } from './health/health.module';
 
 @Module({
   imports: [
@@ -28,6 +29,7 @@ import { CartModule } from './cart/cart.module';
       },
       resolvers: [{ use: QueryResolver, options: ['lang'] }],
     }),
+    HealthModule,
     AuthModule,
     CourseModule,
     InstructorModule,

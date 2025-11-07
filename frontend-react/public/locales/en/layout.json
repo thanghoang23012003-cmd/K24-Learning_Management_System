@@ -11,7 +11,8 @@
     "sidebar": {
         "dashboard": "Dashboard",
         "courses": "Courses",
-        "settings": "Settings"
+        "settings": "Settings",
+        "reviews": "Reviews"
     },
     "account": {
         "profile": "Profile",
@@ -19,5 +20,22 @@
         "settings": "Settings",
         "logout": "Logout",
         "logout_success": "Logout successful"
+    },
+    "footer": {
+        "tagline": "Empowering learners through accessible and engaging online education.",
+        "desc": "Byway is a leading online learning platform dedicated to providing high-quality, flexible, and affordable educational experiences.",
+        "get_help": "Get Help",
+        "contact_us": "Contact Us",
+        "latest_articles": "Latest Articles",
+        "faq": "FAQ",
+        "programs": "Programs",
+        "program_art_design": "Art & Design",
+        "program_business": "Business",
+        "program_it_software": "IT & Software",
+        "program_languages": "Languages",
+        "program_programming": "Programming",
+        "address": "Address: 123 Main Street, Anytown, CA 12345",
+        "tel": "Tel: +(123) 456-7890",
+        "mail": "Mail: bywayedu@webkul.in"
     }
 }

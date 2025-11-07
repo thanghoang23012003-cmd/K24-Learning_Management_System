@@ -24,3 +24,14 @@ docker exec -it <container_id> sh" rồi chạy "npm run seed:all"
 - Thêm màn hình làm bài test (role user) - FE + BE
 
 - Xử lý tiếp các logic thêm vào giỏ hàng, mua khoá học
+MONGO_URI=mongodb+srv://thanghoang23012003:bm5Tnj8CnDQ0TpEB@cluster0.dilj3zz.mongodb.net/byway?retryWrites=true&w=majority&appName=Cluster0
+
+
+Một số lệnh thường dùng trong docker
+1. Dùng để xem docker nào đang chạy, và lấy id container: docker ps
+2. Xem logs: docker logs <container_id>
+3. Truy cập vào bên trong docker: docker exec -it <container_id> sh
+
+Tạo data trong trường hợp chưa có
+B1: Truy cập vào bên trong docker của BE
+B2: npm run seed:all

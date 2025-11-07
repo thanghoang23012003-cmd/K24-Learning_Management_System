@@ -1,0 +1,11 @@
+{
+  "review_moderation_title": "Kiểm duyệt đánh giá",
+  "pending_tab": "Đang chờ",
+  "approved_tab": "Đã duyệt",
+  "rejected_tab": "Đã từ chối",
+  "course_label": "Khóa học",
+  "rating_label": "Đánh giá",
+  "approve_button": "Duyệt",
+  "reject_button": "Từ chối",
+  "no_reviews_found": "Không tìm thấy đánh giá nào cho danh mục này."
+}

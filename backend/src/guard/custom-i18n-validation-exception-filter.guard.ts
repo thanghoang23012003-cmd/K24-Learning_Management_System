@@ -23,6 +23,10 @@ export class CustomI18nValidationExceptionFilter
         );
         const firstConstraint = Object.values(error.constraints || {})[0];
 
+        if (!firstConstraint) {
+          return 'An unknown validation error occurred.';
+        }
+
         return await this.i18n.translate(firstConstraint, {
           lang,
           args: {

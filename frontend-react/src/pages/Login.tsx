@@ -23,16 +23,20 @@ export default function Login() {
       });
 
       if (!res.ok) {
-        throw new Error(await res.json());
+        const errorData = await res.json();
+        console.log("Login error data:", errorData);
+        throw new Error(errorData.message || 'Login failed');
       }
 
       const data = await res.json();
+      console.log("Login data:", data);
 
       Cookies.set(ACCESS_TOKEN_KEY, data.access_token, { expires: 7 }); 
       setLogin(data.access_token, data.user);
       toast.success(t('login_success', { ns: 'login' }));
       navigate("/");
     } catch (err: any) {
+      console.log("Login error:", err);
       toast.error(t('login_failed', { ns: 'login' }));
     }
   };

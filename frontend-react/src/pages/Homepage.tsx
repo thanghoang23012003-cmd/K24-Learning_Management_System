@@ -20,7 +20,8 @@ export default function Homepage() {
   const fetchTrendingCourses = async () => {
     try {
       const response = await getTrendingCourses();
-      setTrendingCourses(response.data);
+      console.log("API Response Data for trendingCourses:", response.data);
+      setTrendingCourses(response.data || []);
     } catch (error) {
       setTrendingCourses([]);
       console.error("Error fetching trending courses:", error);

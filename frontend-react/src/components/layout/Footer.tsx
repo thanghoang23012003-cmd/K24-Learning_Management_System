@@ -70,7 +70,7 @@ export default function Footer() {
                   {t("footer.programs", { ns: "layout", defaultValue: "Programs" })}
                 </h4>
                 <ul className="space-y-3 text-slate-300 text-sm">
-                  {["Art & Design", "Business", "IT & Software", "Languages", "Programming"].map(
+                  {[t("footer.program_art_design", { ns: "layout", defaultValue: "Art & Design" }), t("footer.program_business", { ns: "layout", defaultValue: "Business" }), t("footer.program_it_software", { ns: "layout", defaultValue: "IT & Software" }), t("footer.program_languages", { ns: "layout", defaultValue: "Languages" }), t("footer.program_programming", { ns: "layout", defaultValue: "Programming" })].map(
                     (label) => (
                       <li key={label}>
                         <a href="#" className="hover:text-white">
@@ -88,9 +88,9 @@ export default function Footer() {
                   {t("footer.contact_us", { ns: "layout", defaultValue: "Contact Us" })}
                 </h4>
                 <ul className="space-y-2 text-slate-300 text-sm">
-                  <li>Address: 123 Main Street, Anytown, CA 12345</li>
-                  <li>Tel: +(123) 456-7890</li>
-                  <li>Mail: bywayedu@webkul.in</li>
+                  <li>{t("footer.address", { ns: "layout", defaultValue: "Address: 123 Main Street, Anytown, CA 12345" })}</li>
+                  <li>{t("footer.tel", { ns: "layout", defaultValue: "Tel: +(123) 456-7890" })}</li>
+                  <li>{t("footer.mail", { ns: "layout", defaultValue: "Mail: bywayedu@webkul.in" })}</li>
                 </ul>
 
                 {/* Socials */}

@@ -4,8 +4,8 @@ import './index.css'
 import './i18n';
 import App from './App.tsx'
 import { Provider } from 'react-redux';
-import { store } from './store/index.tsx';
-import { injectStore } from './utils/api';
+import store from './store/index.tsx';
+import { injectStore } from './utils/api.tsx';
 
 injectStore(store);
 

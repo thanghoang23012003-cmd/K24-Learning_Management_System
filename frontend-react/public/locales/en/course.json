@@ -69,5 +69,9 @@
   "submit_reply": "Submit Reply",
   "reply_submitted": "Reply submitted!",
   "reply_submit_failed": "Failed to submit reply.",
-  "please_select_rating": "Please select a rating before submitting."
+  "please_select_rating": "Please select a rating before submitting.",
+  "review_pending_approval": "Your comment is awaiting approval",
+  "review_status_pending": "Pending Approval",
+  "review_status_approved": "Approved",
+  "review_status_rejected": "Rejected"
 }

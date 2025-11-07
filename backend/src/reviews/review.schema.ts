@@ -10,8 +10,11 @@ export class Review {
   @Prop({ required: true })
   content: string;
 
-  @Prop({ required: true, default: 5 })
+  @Prop({ default: null })
   rating: number;
+
+  @Prop({ type: String, enum: ['pending', 'approved', 'rejected'], default: 'pending' })
+  status: string;
 
   @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true })
   userId: User;

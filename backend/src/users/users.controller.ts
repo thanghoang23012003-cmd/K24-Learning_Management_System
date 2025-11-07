@@ -37,6 +37,7 @@ export class UserController {
     @UploadedFile() avatar: Express.Multer.File,
   ) {
     body.avatar = avatar ? avatar.path : undefined;
+    console.log("Avatar path being saved:", body.avatar);
     const user = await this.usersService.update(req.user._id, body);
 
     return UserSerializer.fromUser(user);

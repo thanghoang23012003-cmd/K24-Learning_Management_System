@@ -15,6 +15,8 @@ import { Toaster } from "react-hot-toast";
 import UpdateCourse from "./pages/admin/UpdateCourse";
 import Cart from "./pages/Cart";
 
+import ReviewModeration from "./pages/admin/ReviewModeration";
+
 export default function App() {
   return (
     <>
@@ -37,6 +39,7 @@ export default function App() {
             <Route path="/admin/course/create" element={<CreateCourse />} />
             <Route path="/admin/course/:id/edit" element={<UpdateCourse />} />
             <Route path="/admin/course/:id/subject/create" element={<CreateSubject />} />
+            <Route path="/admin/reviews" element={<ReviewModeration />} />
           </Route>
         </Routes>
       </Router>

@@ -9,7 +9,9 @@ import toast from "react-hot-toast";
 import { useAuth } from "../hooks/useAuth";
 import { useDispatch } from "react-redux";
 import type { AppDispatch } from "../store";
-import { addCourseToCart } from "../store/cartSlice";
+import { addToCart } from "../store/cartSlice";
+import ReviewItem from "../components/layout/ReviewItem";
+
 
 /* ===================== Helpers ===================== */
 /** Sao nguyên (không 1/2), luôn làm tròn lên */
@@ -92,7 +94,7 @@ function BuyCard({
 
   const handleAddToCart = () => {
     if (course) {
-      dispatch(addCourseToCart(course._id))
+      dispatch(addToCart(course._id))
         .unwrap()
         .then(() => {
           toast.success(t("course_added_to_cart", { ns: "course" }));
@@ -197,10 +199,11 @@ export type CourseReview = {
   rating: number;
   content: string;
   createdAt: string;
+  status: 'pending' | 'approved' | 'rejected';
   replies?: CourseReview[]; // Added for nested replies
 };
 
-import ReviewItem from "../components/layout/ReviewItem";
+
 
 /* ===================== Page ===================== */
 export default function DetailCourse() {
@@ -272,13 +275,17 @@ export default function DetailCourse() {
     }
 
     try {
-      await createReview(id, userRating, userText);
+      const response = await createReview(id, userRating, userText);
+      const newReview = response.data;
+      setCourseReviews([newReview, ...courseReviews]);
+
       toast.success(t("review_submitted", { ns: "course" }));
 
-      // Reset form and refetch on success
+      // Reset form
       setUserRating(0);
       setUserText("");
-      await Promise.all([fetchCourseReviews(id), fetchCourse(id)]);
+      // No need to refetch all reviews, just update the course stats
+      await fetchCourse(id);
     } catch (error) {
       toast.error(t("review_submit_failed", { ns: "course" }));
     }

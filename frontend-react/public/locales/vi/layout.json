@@ -11,7 +11,8 @@
     "sidebar": {
         "dashboard": "Bảng điều khiển",
         "courses": "Khóa học",
-        "settings": "Cài đặt"
+        "settings": "Cài đặt",
+        "reviews": "Đánh giá"
     },
     "account": {
         "profile": "Hồ sơ",
@@ -19,5 +20,22 @@
         "settings": "Cài đặt",
         "logout": "Đăng xuất",
         "logout_success": "Đăng xuất thành công"
+    },
+    "footer": {
+        "tagline": "Trao quyền cho người học thông qua giáo dục trực tuyến dễ tiếp cận và hấp dẫn.",
+        "desc": "Byway là một nền tảng học tập trực tuyến hàng đầu chuyên cung cấp trải nghiệm giáo dục chất lượng cao, linh hoạt và giá cả phải chăng.",
+        "get_help": "Trợ giúp",
+        "contact_us": "Liên hệ chúng tôi",
+        "latest_articles": "Bài viết mới nhất",
+        "faq": "Câu hỏi thường gặp",
+        "programs": "Chương trình",
+        "program_art_design": "Nghệ thuật & Thiết kế",
+        "program_business": "Kinh doanh",
+        "program_it_software": "CNTT & Phần mềm",
+        "program_languages": "Ngôn ngữ",
+        "program_programming": "Lập trình",
+        "address": "Địa chỉ: 123 Main Street, Anytown, CA 12345",
+        "tel": "Điện thoại: +(123) 456-7890",
+        "mail": "Email: bywayedu@webkul.in"
     }
 }
