@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Stars } from '../../pages/DetailCourse';
-import { formatDateTime } from '../../utils/base.util';
+import { formatDateTime, beFileUrl } from '../../utils/base.util';
 import type { CourseReview } from '../../pages/DetailCourse';
 import { useApi } from '../../hooks/useAPI';
 import toast from 'react-hot-toast';
@@ -18,7 +18,9 @@ const ReviewItem: React.FC<ReviewItemProps> = ({ review, courseId, onReviewSubmi
   const [replyContent, setReplyContent] = useState('');
   const { createReview } = useApi();
 
-  const userName = review.userId ? `${review.userId.firstName} ${review.userId.lastName}` : 'Anonymous';
+  const user = review.userId;
+  const userName = user ? `${user.firstName} ${user.lastName}` : 'Anonymous';
+  const avatarUrl = user?.avatar ? beFileUrl(user.avatar) : null;
 
   const handleReplySubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -35,25 +37,41 @@ const ReviewItem: React.FC<ReviewItemProps> = ({ review, courseId, onReviewSubmi
     }
   };
 
+  const renderAvatar = () => {
+    if (avatarUrl) {
+      return (
+        <img
+          src={avatarUrl}
+          alt={userName}
+          className="w-8 h-8 rounded-full mr-2 object-cover"
+        />
+      );
+    }
+
+    // Nếu không có avatar, hiển thị chữ cái đầu của tên
+    return (
+      <div className="w-8 h-8 rounded-full bg-slate-700 flex items-center justify-center text-white font-medium mr-2">
+        {userName?.charAt(0)?.toUpperCase() || "A"}
+      </div>
+    );
+  };
+
   return (
     <div className="border-b py-4">
       <div className="flex items-center mb-2">
-        {review.userId.avatar && (
-          <img
-            src={review.userId.avatar}
-            alt={userName}
-            className="w-8 h-8 rounded-full mr-2 object-cover"
-          />
-        )}
+        {renderAvatar()}
         <div className="font-bold mr-2">{userName}</div>
         {review.rating && <Stars value={review.rating} />}
       </div>
+
       <p className="text-gray-700">{review.content}</p>
+
       {review.status === 'pending' && (
         <p className="text-sm text-yellow-600 mt-2">
           {t('review_pending_approval', { ns: 'course', defaultValue: 'Your comment is awaiting approval' })}
         </p>
       )}
+
       <div className="text-sm text-gray-500 mt-2">
         {formatDateTime(review.createdAt)}
         {review.status && (

@@ -6,6 +6,7 @@ import { useTranslation } from "react-i18next";
 import { Outlet, useNavigate, Link, useLocation } from "react-router-dom";
 import toast from "react-hot-toast";
 import { useAuth } from "../../hooks/useAuth";
+import { beFileUrl } from "../../utils/base.util";
 
 /**
  * Header người dùng + live search:
@@ -121,9 +122,17 @@ export default function UserHeader() {
                 <div className="relative" ref={userDdRef}>
                   <div
                     onClick={() => setIsUserOpen((v) => !v)}
-                    className="w-9 h-9 rounded-full bg-slate-700 flex items-center justify-center text-white font-medium cursor-pointer"
+                    className="w-9 h-9 rounded-full flex items-center justify-center text-white font-medium cursor-pointer overflow-hidden bg-slate-700"
                   >
-                    {user?.username?.charAt(0)?.toUpperCase()}
+                    {user?.avatar ? (
+                      <img
+                        src={beFileUrl(user.avatar)}
+                        alt={user?.username || "User"}
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <span>{user?.username?.charAt(0)?.toUpperCase() || "U"}</span>
+                    )}
                   </div>
 
                   {isUserOpen && (
