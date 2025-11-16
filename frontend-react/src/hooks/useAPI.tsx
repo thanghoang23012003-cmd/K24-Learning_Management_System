@@ -30,8 +30,8 @@ export const useApi = () => {
     return api.get('/users/profile');
   };
 
-  const getAllCourses = () => {
-    return api.get('/courses/all');
+  const getAllCourses = (page?: number, limit?: number) => {
+    return api.get('/courses/all', { params: { page, limit } });
   };
 
   const getListPublishedCourses = () => {

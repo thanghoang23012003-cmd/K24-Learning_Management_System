@@ -25,9 +25,15 @@ export class CourseController {
   constructor(private courseService: CourseService) {}
 
   @Get('/all')
-  async getListCourses() {
-    const courses = await this.courseService.getListCourse();
-    return courses.map((course) => CourseSerializer.fromCourse(course));
+  async getListCourses(
+    @Query('page') page: number = 1,
+    @Query('limit') limit: number = 10,
+  ) {
+    const { data, total } = await this.courseService.getListCourse(page, limit);
+    const serializedCourses = data.map((course) =>
+      CourseSerializer.fromCourse(course),
+    );
+    return { data: serializedCourses, total };
   }
 
   @Get('/published')

@@ -63,14 +63,20 @@ export class CourseService {
     });
   }
 
-  async getListCourse(): Promise<CourseDocument[]> {
-    const courses = await this.courseModel.find().exec();
+  async getListCourse(
+    page: number,
+    limit: number,
+  ): Promise<{ data: CourseDocument[]; total: number }> {
+    const total = await this.courseModel.countDocuments().exec();
+    const courses = await this.courseModel
+      .find()
+      .sort({ createdAt: -1 })
+      .skip((page - 1) * limit)
+      .limit(limit)
+      .exec();
+
     const withRatings = await this._attachRatings(courses);
-    withRatings.sort(
-      (a, b) =>
-        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
-    );
-    return withRatings;
+    return { data: withRatings, total };
   }
 
   async getListCoursePublished(): Promise<CourseDocument[]> {

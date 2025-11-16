@@ -289,7 +289,7 @@ export default function CreateCourse() {
 
     try {
       await createCourse(formPayload);
-      navigate("/admin/dashboard");
+      navigate("/admin/dashboard", { state: { refresh: true } });
       toast.success(t("create_success", { ns: "createcourse" }));
     } catch (error) {
       toast.error(t("create_error", { ns: "createcourse" }));
@@ -352,7 +352,7 @@ export default function CreateCourse() {
   const pageRows = useMemo(() => rows.slice((page - 1) * pageSize, page * pageSize), [rows, page]);
 
   return (
-    <div className="ml-60 min-h-screen bg-slate-50">
+    <div className="min-h-screen bg-slate-50">
       {/* Header giữ nguyên */}
       <div className="max-w-7xl mx-auto px-4 py-12">
         <div className="text-center">
