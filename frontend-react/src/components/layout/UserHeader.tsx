@@ -7,27 +7,26 @@ import { Outlet, useNavigate, Link, useLocation } from "react-router-dom";
 import toast from "react-hot-toast";
 import { useAuth } from "../../hooks/useAuth";
 import { beFileUrl } from "../../utils/base.util";
+import { useDispatch, useSelector } from "react-redux";
+import { searchCoursesAI, clearAiSearchResults } from "../../store/aiSearchSlice";
+import type { RootState } from "../../store";
 
-/**
- * Header người dùng + live search:
- * - Gõ vào ô Search sẽ tự điều hướng tới /courses?search=...
- * - Debounce 300ms để tránh spam navigate.
- */
 export default function UserHeader() {
   const { t, i18n } = useTranslation();
   const navigate = useNavigate();
   const location = useLocation();
   const { isLoggedIn, user, logout } = useAuth();
 
+  const dispatch = useDispatch();
+  const { status: aiSearchStatus } = useSelector((state: RootState) => state.aiSearch);
+
   const [isUserOpen, setIsUserOpen] = useState(false);
   const [isLangOpen, setIsLangOpen] = useState(false);
   const [searchText, setSearchText] = useState("");
 
-  // tách 2 refs để không “đè” nhau
   const userDdRef = useRef<HTMLDivElement | null>(null);
   const langDdRef = useRef<HTMLDivElement | null>(null);
 
-  // đóng dropdown khi click ra ngoài
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
       if (userDdRef.current && !userDdRef.current.contains(e.target as Node)) {
@@ -41,17 +40,27 @@ export default function UserHeader() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  // LIVE SEARCH: điều hướng kèm query ?search=
-  useEffect(() => {
-    // Chỉ chạy khi đang ở trang /courses
-    if (location.pathname !== '/courses') return;
+  // Xử lý tìm kiếm AI (khi nhấn Enter)
+  const handleAISearch = async (e: React.FormEvent) => {
+    e.preventDefault(); // Ngăn chặn submit form mặc định
+    if (searchText.trim() === "") return;
 
-    const id = setTimeout(() => {
-      const q = searchText.trim();
-      navigate(q ? `/courses?search=${encodeURIComponent(q)}` : "/courses", { replace: true });
-    }, 300);
-    return () => clearTimeout(id);
-  }, [searchText, navigate, location.pathname]);
+    dispatch(searchCoursesAI(searchText.trim()));
+    // Điều hướng đến /courses, kết quả sẽ được trang ListCourses lấy từ Redux
+    navigate("/courses", { replace: true });
+  };
+
+  // Xử lý tìm kiếm từ khóa truyền thống (khi nhấn nút kính lúp)
+  const handleKeywordSearch = (e: React.MouseEvent) => {
+    e.preventDefault(); // Ngăn chặn submit form mặc định
+    if (searchText.trim() === "") {
+      navigate("/courses", { replace: true });
+      return;
+    }
+    // Xóa kết quả AI trước khi thực hiện tìm kiếm từ khóa
+    dispatch(clearAiSearchResults());
+    navigate(`/courses?search=${encodeURIComponent(searchText.trim())}`, { replace: true });
+  };
 
   const handleLogout = () => {
     logout();
@@ -83,10 +92,10 @@ export default function UserHeader() {
               {t("header.categories", { ns: "layout" })}
             </button>
 
-            {/* SEARCH (live) */}
+            {/* SEARCH (AI by Enter, Keyword by Button) */}
             <form
-              className="flex items-center gap-2.5 px-2.5 py-2.5 border border-slate-700 rounded-lg w-[622px] h-10"
-              onSubmit={(e) => e.preventDefault()}
+              className="flex items-center gap-2.5 px-2.5 py-2.5 border border-slate-700 rounded-lg w-[622px] h-10 relative"
+              onSubmit={handleAISearch} // Enter triggers AI search
             >
               <input
                 value={searchText}
@@ -95,12 +104,18 @@ export default function UserHeader() {
                 placeholder={t("header.search", { ns: "layout", defaultValue: "Search Courses" })}
               />
               <button
-                type="submit"
+                type="button" // Changed to type="button"
+                onClick={handleKeywordSearch} // Click triggers Keyword search
                 className="px-2 py-1 text-sm rounded hover:bg-slate-100 cursor-pointer"
                 aria-label="Search"
               >
                 🔍
               </button>
+              {aiSearchStatus === 'loading' && (
+                <div className="absolute inset-0 flex items-center justify-center bg-white bg-opacity-75 rounded-lg">
+                  <span className="text-slate-700 text-sm font-medium">Đang tìm kiếm AI...</span>
+                </div>
+              )}
             </form>
 
             <button className="text-slate-700 text-sm font-medium hover:text-slate-900 whitespace-nowrap cursor-pointer">

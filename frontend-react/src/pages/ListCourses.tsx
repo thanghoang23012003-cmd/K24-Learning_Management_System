@@ -3,6 +3,8 @@ import { useTranslation } from "react-i18next";
 import Footer from "../components/layout/Footer";
 import { useApi } from "../hooks/useAPI";
 import { useLocation, useNavigate } from "react-router-dom";
+import { useSelector } from "react-redux";
+import type { RootState } from "../store";
 
 /* ---------- Helpers ---------- */
 function Stars({ value }: { value: number }) {
@@ -100,20 +102,27 @@ export default function ListCourses() {
   const location = useLocation();
   const { getListPublishedCourses, getTrendingCourses, getTopInstructors } = useApi();
 
-  const [courses, setCourses] = useState<Course[]>([]);
+  // Lấy trạng thái tìm kiếm AI từ Redux
+  const { aiSearchResults, aiSearchQuery, status: aiSearchStatus, error: aiSearchError } = useSelector((state: RootState) => state.aiSearch);
+
+  const [allPublishedCourses, setAllPublishedCourses] = useState<Course[]>([]); // Đổi tên từ 'courses'
   const [trendingCourses, setTrendingCourses] = useState<Course[]>([]);
   const [topInstructors, setTopInstructors] = useState<Instructor[]>([]);
 
   /* ===== fetch ===== */
   useEffect(() => {
-    (async () => {
-      try {
-        const r = await getListPublishedCourses();
-        setCourses(r.data);
-      } catch {
-        setCourses([]);
-      }
-    })();
+    // Chỉ fetch tất cả khóa học nếu không có tìm kiếm AI đang hoạt động
+    if (!aiSearchQuery) {
+      (async () => {
+        try {
+          const r = await getListPublishedCourses();
+          setAllPublishedCourses(r.data);
+        } catch {
+          setAllPublishedCourses([]);
+        }
+      })();
+    }
+    // Fetch trending và instructors luôn chạy
     (async () => {
       try {
         const r = await getTrendingCourses();
@@ -130,7 +139,7 @@ export default function ListCourses() {
         setTopInstructors([]);
       }
     })();
-  }, []);
+  }, [aiSearchQuery]); // Chạy lại khi aiSearchQuery thay đổi
 
   /* ===== SORT + SEARCH + FILTERS ===== */
   const [sortBy, setSortBy] = useState<SortBy>("popular");
@@ -142,15 +151,23 @@ export default function ListCourses() {
   const [categoryChoices, setCategoryChoices] = useState<Category[]>([]);
   const [showMoreChapters, setShowMoreChapters] = useState(false);
 
-  // SEARCH keyword lấy từ query
-  const keywordRaw = new URLSearchParams(location.search).get("search") || "";
+  // Nguồn khóa học để lọc: ưu tiên kết quả AI nếu có, nếu không thì dùng tất cả khóa học đã publish
+  const coursesToFilter = useMemo(() => {
+    if (aiSearchQuery && aiSearchResults.length > 0) {
+      return aiSearchResults;
+    }
+    return allPublishedCourses;
+  }, [aiSearchResults, aiSearchQuery, allPublishedCourses]);
+
+  // SEARCH keyword lấy từ query (chỉ dùng khi không có AI search)
+  const keywordRaw = aiSearchQuery ? "" : new URLSearchParams(location.search).get("search") || "";
   const terms = normalize(keywordRaw).split(/\s+/).filter(Boolean);
 
   // lọc + sắp xếp
   const filteredCourses = useMemo(() => {
-    const byFilter = courses.filter((c) => {
-      // search theo tiêu đề – tất cả từ phải khớp (AND)
-      if (terms.length) {
+    const byFilter = coursesToFilter.filter((c) => {
+      // search theo tiêu đề – chỉ áp dụng cho tìm kiếm từ khóa truyền thống
+      if (!aiSearchQuery && terms.length) {
         const titleN = normalize(c.title);
         if (!terms.every((w) => titleN.includes(w))) return false;
       }
@@ -188,7 +205,7 @@ export default function ListCourses() {
     if (sortBy === "price_high") arr.sort((a, b) => b.price - a.price);
     if (sortBy === "rating") arr.sort((a, b) => b.avgRating - a.avgRating);
     return arr;
-  }, [courses, terms.join("|"), ratingChoices, chapterChoices, priceChoices, categoryChoices, sortBy]);
+  }, [coursesToFilter, aiSearchQuery, aiSearchResults, terms.join("|"), ratingChoices, chapterChoices, priceChoices, categoryChoices, sortBy]);
 
   // pagination
   const pageSize = 9;
@@ -199,7 +216,7 @@ export default function ListCourses() {
   // về trang 1 khi tiêu chí đổi
   useEffect(() => {
     setPage(1);
-  }, [keywordRaw, ratingChoices, chapterChoices, priceChoices, categoryChoices, sortBy]);
+  }, [aiSearchQuery, keywordRaw, ratingChoices, chapterChoices, priceChoices, categoryChoices, sortBy]);
 
   // helpers toggle
   const toggle = <T,>(arr: T[], v: T) => (arr.includes(v) ? arr.filter((x) => x !== v) : [...arr, v]);
@@ -230,6 +247,23 @@ export default function ListCourses() {
 
       {/* MAIN */}
       <main className="max-w-7xl mx-auto px-4 md:px-6 lg:px-8 py-8 space-y-12">
+        {aiSearchStatus === 'loading' && (
+          <div className="text-center py-8 text-lg text-slate-600">Đang tìm kiếm AI cho "{aiSearchQuery}"...</div>
+        )}
+        {aiSearchStatus === 'failed' && aiSearchError && (
+          <div className="text-center py-8 text-lg text-red-600">Lỗi tìm kiếm AI: {aiSearchError}</div>
+        )}
+        {aiSearchQuery && aiSearchStatus === 'succeeded' && (
+          <div className="text-center py-4 text-lg text-slate-700">
+            Kết quả tìm kiếm AI cho: <span className="font-semibold">"{aiSearchQuery}"</span>
+          </div>
+        )}
+        {aiSearchQuery && aiSearchResults.length === 0 && aiSearchStatus === 'succeeded' && (
+          <div className="text-center py-4 text-lg text-slate-700">
+            Không tìm thấy kết quả AI nào cho: <span className="font-semibold">"{aiSearchQuery}"</span>
+          </div>
+        )}
+
         <section className="bg-transparent p-0">
           <header className="mb-5">
             <h2 className="text-2xl md:text-3xl font-bold text-slate-900">{t("design_courses", { ns: "dashboard" })}</h2>

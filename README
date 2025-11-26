@@ -35,3 +35,4 @@ Một số lệnh thường dùng trong docker
 Tạo data trong trường hợp chưa có
 B1: Truy cập vào bên trong docker của BE
 B2: npm run seed:all
+npm run generate:embeddings

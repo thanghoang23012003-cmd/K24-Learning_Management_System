@@ -4,6 +4,7 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { MongooseModule } from '@nestjs/mongoose';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { HealthModule } from './health/health.module';
 import { AuthModule } from './auth/auth.module';
 import { I18nModule, QueryResolver } from 'nestjs-i18n';
 import * as path from 'path';
@@ -13,7 +14,7 @@ import { CourseModule } from './courses/course.module';
 import { InstructorModule } from './instructors/instructor.module';
 import { ReviewModule } from './reviews/review.module';
 import { CartModule } from './cart/cart.module';
-import { HealthModule } from './health/health.module';
+import { AiSearchModule } from './ai-search/ai-search.module';
 
 @Module({
   imports: [
@@ -35,6 +36,7 @@ import { HealthModule } from './health/health.module';
     InstructorModule,
     ReviewModule,
     CartModule,
+    AiSearchModule,
     ServeStaticModule.forRoot({
       rootPath: join(__dirname, '..', 'uploads'),
       serveRoot: '/uploads', // client truy cập http://localhost:3000/uploads/filename.jpg
