@@ -15,7 +15,7 @@ export default defineConfig(({ mode }) => {
       port: 5000,
       proxy: {
         '/api': {
-          target: 'http://localhost:3000', // Use localhost for local development
+          target: 'http://nest-dev:3000', // Use localhost for local development
           changeOrigin: true,
           rewrite: (path) => path.replace(/^\/api/, ''), // Remove /api prefix
         },
