@@ -286,8 +286,12 @@ export default function DetailCourse() {
       setUserText("");
       // No need to refetch all reviews, just update the course stats
       await fetchCourse(id);
-    } catch (error) {
-      toast.error(t("review_submit_failed", { ns: "course" }));
+    } catch (error: any) {
+      if (error?.response?.data?.message) {
+        toast.error(error.response.data.message);
+      } else {
+        toast.error(t("review_submit_failed", { ns: "course" }));
+      }
     }
   };
   

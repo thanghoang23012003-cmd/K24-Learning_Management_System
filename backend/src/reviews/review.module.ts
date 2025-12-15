@@ -8,13 +8,15 @@ import { ReviewController } from './review.controller';
 import { UsersModule } from '../users/users.module';
 
 import { RolesGuard } from '../guard/roles.guard';
+import { AiModerationModule } from './../ai-moderation/ai-moderation.module';
 
 @Module({
   imports: [
+    AiModerationModule,
     UsersModule,
     MongooseModule.forFeature([
       { name: Review.name, schema: ReviewSchema },
-      { name: Course.name, schema: CourseSchema }
+      { name: Course.name, schema: CourseSchema },
     ]),
   ],
   providers: [ReviewService, RolesGuard],

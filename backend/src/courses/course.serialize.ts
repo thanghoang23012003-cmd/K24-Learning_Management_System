@@ -25,6 +25,14 @@ export class CourseSerializer {
   ];
   private static CONVERT_STRING = ['_id'];
 
+  static serialize(course: CourseDocument) {
+    return this.fromCourse(course);
+  }
+
+  static fromCourses(courses: CourseDocument[]) {
+    return courses.map((course) => this.fromCourse(course));
+  }
+
   static fromCourse(course: CourseDocument) {
     return this.PERMIT.reduce((obj, key) => {
       if (this.CONVERT_STRING.includes(key)) {

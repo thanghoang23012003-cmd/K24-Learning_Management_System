@@ -30,29 +30,27 @@ export class CourseController {
     @Query('limit') limit: number = 10,
   ) {
     const { data, total } = await this.courseService.getListCourse(page, limit);
-    const serializedCourses = data.map((course) =>
-      CourseSerializer.fromCourse(course),
-    );
+    const serializedCourses = CourseSerializer.fromCourses(data);
     return { data: serializedCourses, total };
   }
 
   @Get('/published')
   async getListPublishedCourses() {
     const courses = await this.courseService.getListCoursePublished();
-    return courses.map((course) => CourseSerializer.fromCourse(course));
+    return CourseSerializer.fromCourses(courses);
   }
 
   @Get('/trending')
   async getListTrendingCourses(@Query('limit') limit: number) {
     limit = limit || 8;
     const courses = await this.courseService.getTrendingCourses(limit);
-    return courses.map((course) => CourseSerializer.fromCourse(course));
+    return CourseSerializer.fromCourses(courses);
   }
 
   @Get('/:id')
   async getCourseById(@Param('id') id: string) {
     const course = await this.courseService.findByField('_id', id);
-    return CourseSerializer.fromCourse(course);
+    return CourseSerializer.serialize(course);
   }
 
   @Post('/create')
@@ -88,6 +86,20 @@ export class CourseController {
     return { success: true };
   }
 
+  @Patch('/:id/unpublish')
+  @UseGuards(JwtAuthGuard)
+  async unpublishCourse(@Param('id') id: string) {
+    const course = await this.courseService.unpublishCourse(id);
+    return CourseSerializer.fromCourse(course);
+  }
+
+  @Patch('/:id/publish')
+  @UseGuards(JwtAuthGuard)
+  async publishCourse(@Param('id') id: string) {
+    const course = await this.courseService.publishCourse(id);
+    return CourseSerializer.fromCourse(course);
+  }
+
   @Patch('/:id')
   @UseGuards(JwtAuthGuard)
   @UseInterceptors(
@@ -106,8 +118,13 @@ export class CourseController {
       introImage?: Express.Multer.File[];
     },
   ) {
-    courseData.introVideo = files.introVideo?.[0]?.path || '';
-    courseData.introImage = files.introImage?.[0]?.path || '';
+    if (files.introVideo) {
+      courseData.introVideo = files.introVideo[0].path;
+    }
+
+    if (files.introImage) {
+      courseData.introImage = files.introImage[0].path;
+    }
 
     const course = await this.courseService.update(id, courseData);
     return CourseSerializer.fromCourse(course);

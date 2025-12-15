@@ -1,14 +1,16 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, BadRequestException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Review, ReviewDocument } from './review.schema';
 import { Course, CourseDocument } from '../courses/course.schema';
+import { AiModerationService } from '../ai-moderation/ai-moderation.service';
 
 @Injectable()
 export class ReviewService {
   constructor(
     @InjectModel(Review.name) private reviewModel: Model<Review>,
     @InjectModel(Course.name) private courseModel: Model<CourseDocument>,
+    private readonly aiModerationService: AiModerationService,
   ) {}
 
   private async _updateCourseRatings(courseId: string) {
@@ -171,6 +173,11 @@ export class ReviewService {
     content: string,
     parentId?: string,
   ): Promise<ReviewDocument> {
+    const moderationResult = await this.aiModerationService.isReviewInappropriate(content);
+    if (moderationResult.inappropriate) {
+      throw new BadRequestException('Đánh giá của bạn chứa nội dung không phù hợp và đã bị từ chối.');
+    }
+
     const newReview = new this.reviewModel({
       userId,
       courseId,

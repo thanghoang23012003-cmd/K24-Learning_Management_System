@@ -4,6 +4,7 @@ import { Course, CourseDocument } from './course.schema';
 import { Model, Types } from 'mongoose';
 import { CreateCourseDto } from './dto/create-course.dto';
 import { UpdateCourseDto } from './dto/update-course.dto';
+import { spawn } from 'child_process';
 import { Review } from '../reviews/review.schema';
 
 @Injectable()
@@ -176,19 +177,58 @@ export class CourseService {
 
   async create(courseData: Partial<CreateCourseDto>): Promise<CourseDocument> {
     const newCourse = new this.courseModel(courseData);
-    return newCourse.save();
+    const savedCourse = await newCourse.save();
+
+    // Execute the script to generate embeddings
+    const child = spawn('ts-node', ['src/ai-tools/generate-embeddings.ts'], {
+      detached: true,
+      stdio: 'ignore',
+    });
+    child.unref();
+
+    return savedCourse;
+  }
+
+  async unpublishCourse(id: string): Promise<CourseDocument | null> {
+    return this.update(id, { status: 'private' });
+  }
+
+  async publishCourse(id: string): Promise<CourseDocument | null> {
+    return this.update(id, { status: 'public' });
   }
 
   async update(
     id: string,
     courseData: Partial<UpdateCourseDto>,
   ): Promise<CourseDocument | null> {
-    return this.courseModel
+    const updatedCourse = await this.courseModel
       .findByIdAndUpdate(id, courseData, { new: true })
       .exec();
+
+    if (updatedCourse) {
+      // Execute the script to generate embeddings
+      const child = spawn('ts-node', ['src/ai-tools/generate-embeddings.ts'], {
+        detached: true,
+        stdio: 'ignore',
+      });
+      child.unref();
+    }
+
+    return updatedCourse;
   }
 
   async delete(id: string): Promise<CourseDocument | null> {
-    return await this.courseModel.findByIdAndDelete(id).exec();
+    const deletedCourse = await this.courseModel.findByIdAndDelete(id).exec();
+
+    if (deletedCourse) {
+      // Execute the script to generate embeddings
+      const child = spawn('ts-node', ['src/ai-tools/generate-embeddings.ts'], {
+        detached: true,
+        stdio: 'ignore',
+      });
+      child.unref();
+    }
+
+    return deletedCourse;
   }
 }
